@@ -12,6 +12,7 @@ struct RoomViewer: View {
     var colours: RoomColours?
     var wallPaint: String?
     var products: [CatalogEntry] = []
+    var style: DesignStyle?
     @Environment(\.dismiss) private var dismiss
 
     enum Mode: String, CaseIterable, Identifiable {
@@ -34,9 +35,9 @@ struct RoomViewer: View {
             Group {
                 switch mode {
                 case .object:
-                    ObjectSceneView(room: room, layout: layout, colours: colours, wallPaint: wallPaint) { selected = $0 }
+                    ObjectSceneView(room: room, layout: layout, colours: colours, wallPaint: wallPaint, products: products, style: style) { selected = $0 }
                 case .ar:
-                    ARRoomView(room: room, layout: layout, colours: colours, wallPaint: wallPaint, tabletop: tabletop, placeAgain: placeAgain,
+                    ARRoomView(room: room, layout: layout, colours: colours, wallPaint: wallPaint, products: products, style: style, tabletop: tabletop, placeAgain: placeAgain,
                                onPlaced: { placed = $0 }, onTap: { selected = $0 })
                 }
             }
@@ -51,7 +52,7 @@ struct RoomViewer: View {
                     .accessibilityLabel("Close")
                     .accessibilityIdentifier("closeViewer")
                     Button {
-                        quickLook = RoomScene.writeUSDZ(room, layout, colours: colours, wallPaint: wallPaint)
+                        quickLook = RoomScene.writeUSDZ(room, layout, colours: colours, wallPaint: wallPaint, products: products, style: style)
                     } label: {
                         Label("Quick Look", systemImage: "arkit").font(.footnote).padding(8)
                     }
@@ -113,7 +114,7 @@ struct ProductCard: View {
 
     private var size: String {
         let values = entry?.size ?? (piece.footprint + [piece.height].compactMap { $0 })
-        return values.map { Units.format($0, UnitSystem.deviceDefault) }.joined(separator: " × ")
+        return values.map { Units.format($0, UnitSystem(rawValue: UserDefaults.standard.string(forKey: "unitSystem") ?? "") ?? .deviceDefault) }.joined(separator: " × ")
     }
 
     var body: some View {
@@ -124,7 +125,8 @@ struct ProductCard: View {
                 Button(action: close) { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
                     .accessibilityLabel("Close")
             }
-            if let store = entry?.store { Text(store).font(.subheadline).foregroundStyle(.secondary) }
+            Text([entry?.store, entry?.priceText].compactMap { $0 }.joined(separator: " · ")).font(.subheadline).foregroundStyle(.secondary)
+            if let original = entry?.originalPriceText { Text("Store price: \(original)").font(.caption).foregroundStyle(.secondary) }
             Text(size).font(.footnote).foregroundStyle(.secondary)
             if let note = entry?.note { Text(note).font(.footnote).foregroundStyle(.orange) }
             if let url = entry?.url {
@@ -147,6 +149,8 @@ struct ObjectSceneView: UIViewRepresentable {
     let layout: FurnitureLayout?
     var colours: RoomColours?
     var wallPaint: String?
+    var products: [CatalogEntry] = []
+    var style: DesignStyle?
     var interactive = true
     let onTap: (String?) -> Void
 
@@ -163,7 +167,7 @@ struct ObjectSceneView: UIViewRepresentable {
 
     private func configure(_ view: SCNView, context: Context) {
         // Walls cut away at 1.1 m, like a doll's house, so the room can be seen into from any angle.
-        let scene = RoomScene.make(room, layout, colours: colours, wallPaint: wallPaint, cutaway: 1.1)
+        let scene = RoomScene.make(room, layout, colours: colours, wallPaint: wallPaint, cutaway: 1.1, products: products, style: style)
         Self.addLights(to: scene)
         let b = room.derived.bounds
         let centre = SCNVector3(Float(b.centre.x), 0.2, Float(b.centre.z))
@@ -225,6 +229,8 @@ struct ARRoomView: UIViewRepresentable {
     let layout: FurnitureLayout?
     var colours: RoomColours?
     var wallPaint: String?
+    var products: [CatalogEntry] = []
+    var style: DesignStyle?
     let tabletop: Bool
     let placeAgain: Int
     let onPlaced: (Bool) -> Void
@@ -264,6 +270,8 @@ struct ARRoomView: UIViewRepresentable {
             c.layout = layout
             c.colours = colours
             c.wallPaint = wallPaint
+            c.products = products
+            c.style = style
             c.tabletop = tabletop
             c.placeAgain = placeAgain
             c.removeRoom()
@@ -280,6 +288,8 @@ struct ARRoomView: UIViewRepresentable {
         var layout: FurnitureLayout?
         var colours: RoomColours?
         var wallPaint: String?
+        var products: [CatalogEntry] = []
+        var style: DesignStyle?
         var tabletop = true
         var placeAgain = 0
         var onPlaced: (Bool) -> Void = { _ in }
@@ -301,7 +311,7 @@ struct ARRoomView: UIViewRepresentable {
             }
             guard let query = view.raycastQuery(from: point, allowing: .estimatedPlane, alignment: .horizontal),
                   let hit = view.session.raycast(query).first else { return }
-            guard let built = RoomScene.make(room, layout, colours: colours, wallPaint: wallPaint).rootNode
+            guard let built = RoomScene.make(room, layout, colours: colours, wallPaint: wallPaint, products: products, style: style).rootNode
                 .childNode(withName: "room", recursively: false) else { return }
             let b = room.derived.bounds
             built.position = SCNVector3(Float(-b.centre.x), 0, Float(-b.centre.z))

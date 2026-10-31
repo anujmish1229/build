@@ -28,6 +28,7 @@ struct RootView: View {
                     case .board(let id): SavedBoardView(boardID: id)
                     case .rooms: RoomsView()
                     case .boards: BoardsView()
+                    case .settings: SettingsView()
                     }
                 }
         }
