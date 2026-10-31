@@ -34,12 +34,15 @@ public struct CatalogEntry: Codable, Sendable, Equatable, Identifiable {
     public var price: Double?
     public var currency: String?
     public var note: String?
+    /// The region it's sold in; nil for a piece shown everywhere.
+    public var region: String?
+    public var look: ProductLook?
 
     public var id: String { catalogID }
 
     enum CodingKeys: String, CodingKey {
         case catalogID = "catalog_id"
-        case name, category, size, styles, clearance, store, url, price, currency, note
+        case name, category, size, styles, clearance, store, url, price, currency, note, region, look
     }
 
     public init(catalogID: String, name: String, category: String, size: [Double], styles: [String] = [],
@@ -64,11 +67,8 @@ public struct CatalogEntry: Codable, Sendable, Equatable, Identifiable {
         price = try c.decodeIfPresent(Double.self, forKey: .price)
         currency = try c.decodeIfPresent(String.self, forKey: .currency)
         note = try c.decodeIfPresent(String.self, forKey: .note)
-    }
-
-    /// "$899 CAD", or nil without a price.
-    public var priceText: String? {
-        price.map { "$\(Int($0.rounded()))" + (currency.map { " \($0)" } ?? "") }
+        region = try c.decodeIfPresent(String.self, forKey: .region)
+        look = try c.decodeIfPresent(ProductLook.self, forKey: .look)
     }
 
     static func webURL(_ text: String) -> URL? {
@@ -80,6 +80,11 @@ public struct CatalogError: Error, Equatable, LocalizedError {
     public let message: String
     public var errorDescription: String? { message }
     public init(_ message: String) { self.message = message }
+}
+
+extension CatalogEntry {
+    /// Unique within a catalogue: the same piece is listed once per region.
+    var regionalID: String { catalogID + "@" + (region ?? "") }
 }
 
 public struct FurnitureCatalog: Sendable {
@@ -106,11 +111,37 @@ public struct FurnitureCatalog: Sendable {
         byID = Dictionary(entries.map { ($0.catalogID, $0) }, uniquingKeysWith: { first, _ in first })
     }
 
-    /// Reads a catalogue file. Refuses one that is unreadable or empty, has duplicate ids or an impossible size.
+    /// Reads a catalogue file. Refuses one that is unreadable or empty, has duplicate ids in a region, or an
+    /// impossible size. A version 3 file lists each piece once, with an `offers` map of region code to
+    /// [price, url]; it becomes one entry per region when read.
     public init(json: Data) throws {
+        struct Region: Decodable {
+            let currency: String?
+            let store: String?
+        }
+        struct Offer: Decodable {
+            let price: Double
+            let url: String
+            init(from decoder: any Decoder) throws {
+                var c = try decoder.unkeyedContainer()
+                price = try c.decode(Double.self)
+                url = try c.decode(String.self)
+            }
+        }
+        struct Item: Decodable {
+            let entry: CatalogEntry
+            let offers: [String: Offer]?
+            enum CodingKeys: String, CodingKey { case offers }
+            init(from decoder: any Decoder) throws {
+                entry = try CatalogEntry(from: decoder)
+                offers = try decoder.container(keyedBy: CodingKeys.self).decodeIfPresent([String: Offer].self, forKey: .offers)
+            }
+        }
         struct File: Decodable {
-            let items: [CatalogEntry]
+            let items: [Item]
             let updated: String?
+            let region: String?
+            let regions: [String: Region]?
         }
         let file: File
         do {
@@ -119,13 +150,31 @@ public struct FurnitureCatalog: Sendable {
             throw CatalogError("That file isn't a furniture catalogue.")
         }
         guard !file.items.isEmpty else { throw CatalogError("The catalogue has no furniture in it.") }
-        guard Set(file.items.map(\.catalogID)).count == file.items.count else {
+        var entries: [CatalogEntry] = []
+        for item in file.items {
+            guard let offers = item.offers else {
+                var entry = item.entry
+                entry.region = entry.region ?? file.region
+                entries.append(entry)
+                continue
+            }
+            for (code, offer) in offers.sorted(by: { $0.key < $1.key }) {
+                var entry = item.entry
+                entry.region = code
+                entry.price = offer.price
+                entry.url = CatalogEntry.webURL(offer.url)
+                entry.currency = file.regions?[code]?.currency ?? entry.currency
+                entry.store = file.regions?[code]?.store ?? entry.store
+                entries.append(entry)
+            }
+        }
+        guard Set(entries.map(\.regionalID)).count == entries.count else {
             throw CatalogError("Two pieces in the catalogue share an id.")
         }
-        for item in file.items where item.size.count != 3 || item.size.contains(where: { !($0 > 0 && $0 < 20) }) {
-            throw CatalogError("\(item.name) has an impossible size.")
+        for item in file.items where item.entry.size.count != 3 || item.entry.size.contains(where: { !($0 > 0 && $0 < 20) }) {
+            throw CatalogError("\(item.entry.name) has an impossible size.")
         }
-        self.init(entries: file.items, updated: file.updated)
+        self.init(entries: entries, updated: file.updated)
     }
 
     /// The catalogue built into the app (Resources/catalog.json).
@@ -136,7 +185,59 @@ public struct FurnitureCatalog: Sendable {
         return catalog
     }()
 
-    public static var current: FurnitureCatalog { bundled }
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var imported: FurnitureCatalog?
+    nonisolated(unsafe) private static var regional: (key: String, catalog: FurnitureCatalog)?
+
+    /// Every region's pieces: the imported catalogue, else the built-in one.
+    public static var all: FurnitureCatalog {
+        lock.lock()
+        defer { lock.unlock() }
+        return imported ?? bundled
+    }
+
+    /// The catalogue in use: the pieces of the regions being shown.
+    public static var current: FurnitureCatalog {
+        let shopping = CatalogRegion.shopping
+        let key = shopping.map { $0.sorted().joined(separator: ",") } ?? CatalogRegion.every
+        lock.lock()
+        defer { lock.unlock() }
+        if let regional, regional.key == key { return regional.catalog }
+        let catalog = (imported ?? bundled).inRegions(shopping)
+        regional = (key, catalog)
+        return catalog
+    }
+
+    /// Switches to an imported catalogue; nil goes back to the built-in one.
+    public static func use(_ catalog: FurnitureCatalog?) {
+        lock.lock()
+        imported = catalog
+        regional = nil
+        lock.unlock()
+    }
+
+    public var regions: [String] { Set(entries.compactMap(\.region)).sorted() }
+
+    /// The pieces sold in any of `regions` (nil is every region), and those for everywhere. A piece sold in
+    /// several is listed once, at its cheapest in US dollars. Regions with no pieces get the US's, else the first's.
+    public func inRegions(_ regions: Set<String>?) -> FurnitureCatalog {
+        guard entries.contains(where: { $0.region != nil }) else { return self }
+        var wanted = regions
+        if let regions, !entries.contains(where: { $0.region.map(regions.contains) ?? false }) {
+            wanted = [entries.contains { $0.region == "US" } ? "US" : entries.compactMap(\.region).first ?? ""]
+        }
+        var picked: [CatalogEntry] = [], index: [String: Int] = [:]
+        for e in entries {
+            if let region = e.region, let wanted, !wanted.contains(region) { continue }
+            if let i = index[e.catalogID] {
+                if (e.dollars ?? .infinity) < (picked[i].dollars ?? .infinity) { picked[i] = e }
+            } else {
+                index[e.catalogID] = picked.count
+                picked.append(e)
+            }
+        }
+        return FurnitureCatalog(entries: picked, updated: updated)
+    }
 
     public func entry(_ id: String?) -> CatalogEntry? { id.flatMap { byID[$0] } }
 

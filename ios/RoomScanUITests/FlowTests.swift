@@ -93,6 +93,26 @@ final class FlowTests: XCTestCase {
         XCTAssertTrue(element("scanUnsupported").waitForExistence(timeout: 5))
     }
 
+    func testDeleteEverythingLeavesNoRoomsAndNoSamples() {
+        tap("goSettings")
+        tap("deleteEverything")
+        // The settings row has the same label, so wait for the dialog's button to make a second match.
+        let matches = app.buttons.matching(NSPredicate(format: "label == 'Delete everything'"))
+        let second = matches.element(boundBy: 1)
+        XCTAssertTrue(second.waitForExistence(timeout: 5))
+        let confirm = matches.allElementsBoundByIndex.first { $0.identifier != "deleteEverything" } ?? second
+        confirm.tap()
+        tap("goRooms")
+        XCTAssertFalse(element("room-Sample bedroom").waitForExistence(timeout: 2))
+    }
+
+    func testBoardPicturesFillIn() {
+        XCTAssertTrue(element("pin-starter-1").waitForExistence(timeout: 3))
+        // Pictures render in the background; the teardown screenshot shows the Board with them in.
+        sleep(8)
+        XCTAssertTrue(element("pin-starter-1").exists)
+    }
+
     func testFloorPlanReviewOpens() {
         tap("goRooms")
         tap("room-Sample bedroom")

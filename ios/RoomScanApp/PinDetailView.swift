@@ -66,7 +66,7 @@ struct PinDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { pictures.request(pin) }
         .fullScreenCover(isPresented: $viewing) {
-            RoomViewer(room: design.room, layout: design.layout, colours: design.colours, products: design.products)
+            RoomViewer(room: design.room, layout: design.layout, colours: design.colours, products: design.products, style: design.plan.style)
         }
         .sheet(isPresented: $saving) { SaveToBoardSheet(pin: pin) }
         .confirmationDialog("Remix into which room?", isPresented: $choosingRoom, titleVisibility: .visible) {
@@ -93,8 +93,7 @@ struct PinDetailView: View {
     }
 
     private var priceLine: String? {
-        let total = design.placedProducts.compactMap(\.price).reduce(0, +)
-        return total > 0 ? "About $\(Int(total)) \(design.placedProducts.first?.currency ?? "")" : nil
+        Prices.totalText(design.placedProducts, home: Prices.homeCurrency)
     }
 
     private var shareFile: URL? {

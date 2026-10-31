@@ -130,16 +130,16 @@ public enum DesignEditor {
     /// The product of a kind that best matches the words. "cheaper", "smaller" and "bigger" keep only those that are.
     static func product(_ category: String, words: Set<String>, replacing current: CatalogEntry?, size: [Double]?, catalog: FurnitureCatalog) -> CatalogEntry? {
         func area(_ s: [Double]?) -> Double { (s?.count ?? 0) >= 2 ? s![0] * s![1] : 0 }
-        let currentArea = area(current?.size ?? size), currentPrice = current?.price
+        let currentArea = area(current?.size ?? size), currentPrice = current?.budgetPrice
         var options = catalog.entries.filter { $0.category == category && $0.catalogID != current?.catalogID }
         let wantsCheap = !words.isDisjoint(with: ["cheaper", "cheap", "cheapest", "budget", "affordable"])
-        if wantsCheap { options = options.filter { ($0.price ?? .infinity) < (currentPrice ?? .infinity) } }
+        if wantsCheap { options = options.filter { ($0.budgetPrice ?? .infinity) < (currentPrice ?? .infinity) } }
         if !words.isDisjoint(with: ["smaller", "small", "compact", "narrower"]), currentArea > 0 { options = options.filter { area($0.size) < currentArea } }
         if !words.isDisjoint(with: ["bigger", "larger", "big", "large", "wider"]), currentArea > 0 { options = options.filter { area($0.size) > currentArea } }
         func score(_ e: CatalogEntry) -> Double {
             var s = Double(Set(e.styles).intersection(words).count) + Double(FurniturePlanner.words(e.name).intersection(words).count) * 1.5
             if currentArea > 0 { s -= abs(area(e.size) - currentArea) * 0.3 }
-            if wantsCheap { s -= (e.price ?? 0) / 1000 }
+            if wantsCheap { s -= (e.budgetPrice ?? 0) / 1000 }
             return s
         }
         var best: (CatalogEntry, Double)?
