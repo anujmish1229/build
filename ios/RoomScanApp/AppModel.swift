@@ -7,6 +7,9 @@ final class AppModel: ObservableObject {
     @Published private(set) var library = Library()
     @Published var toast: String?
     @Published var path = NavigationPath()
+    @Published private(set) var feed: FeedFile?
+    let starter = StarterBoard.load()
+    private let feedStore: FeedStore
 
     let store: LibraryStore
     @AppStorage("unitSystem") var unitsRaw = UnitSystem.deviceDefault.rawValue
@@ -14,11 +17,16 @@ final class AppModel: ObservableObject {
     var units: UnitSystem { UnitSystem(rawValue: unitsRaw) ?? .deviceDefault }
 
     init(directory: URL? = nil) {
-        let dir = directory ?? (try? LibraryStore.defaultDirectory()) ?? FileManager.default.temporaryDirectory
+        // Walk-through tests start from an empty library, away from the user's own.
+        let testing = ProcessInfo.processInfo.arguments.contains("-uiTesting")
+        let testDir = FileManager.default.temporaryDirectory.appendingPathComponent("UITest-\(UUID().uuidString)")
+        let dir = testing ? testDir : (directory ?? (try? LibraryStore.defaultDirectory()) ?? FileManager.default.temporaryDirectory)
         store = LibraryStore(directory: dir)
+        feedStore = FeedStore(directory: dir)
+        feed = feedStore.load()
         if let problem = store.problem { toast = problem }
         do {
-            try Migrations.importLegacyRoom(from: RoomStore(url: RoomStore.defaultURL), into: store)
+            if !testing { try Migrations.importLegacyRoom(from: RoomStore(url: RoomStore.defaultURL), into: store) }
             try store.addSamplesIfNeeded()
         } catch {
             toast = error.localizedDescription
@@ -38,6 +46,29 @@ final class AppModel: ObservableObject {
         } catch {
             toast = "Couldn't save: \(error.localizedDescription)"
             return nil
+        }
+    }
+
+    // MARK: Board
+
+    /// Everything on the Board, in order: yours, shared, feed, starter.
+    var pins: [BoardPin] { BoardContents.pins(library: library, feed: feed, starter: starter) }
+
+    /// Pins in a board, including starter and feed ones.
+    func pin(_ id: String) -> BoardPin? { library.pins.first { $0.id == id } ?? pins.first { $0.id == id } }
+
+    func refreshFeed(_ address: String) async {
+        do {
+            feed = try await feedStore.refresh(from: address)
+            toast = "The feed is up to date."
+        } catch {
+            toast = error.localizedDescription
+        }
+    }
+
+    func remixed(_ pin: BoardPin, option: LayoutOption, into roomID: UUID) -> SavedDesign? {
+        change {
+            try $0.addDesign(SavedDesign(option: option, roomID: roomID, name: pin.design.title, theme: pin.design.theme, remixedFrom: pin.id))
         }
     }
 
@@ -130,6 +161,8 @@ enum Route: Hashable {
     case design(UUID)
     case pin(BoardPin)
     case board(UUID)
+    case rooms
+    case boards
 
     static func == (a: Route, b: Route) -> Bool { a.key == b.key }
     func hash(into hasher: inout Hasher) { hasher.combine(key) }
@@ -139,6 +172,8 @@ enum Route: Hashable {
         case .design(let id): "design" + id.uuidString
         case .pin(let pin): "pin" + pin.id
         case .board(let id): "board" + id.uuidString
+        case .rooms: "rooms"
+        case .boards: "boards"
         }
     }
 }

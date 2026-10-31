@@ -19,16 +19,20 @@ struct RootView: View {
 
     var body: some View {
         NavigationStack(path: $app.path) {
-            RoomsView()
+            BoardView()
                 .navigationDestination(for: Route.self) { route in
                     switch route {
                     case .room(let id): RoomDetailView(roomID: id)
                     case .design(let id): DesignDetailView(designID: id)
-                    case .pin(let pin): Text(pin.design.title)
-                    case .board: EmptyView()
+                    case .pin(let pin): PinDetailView(pin: pin)
+                    case .board(let id): SavedBoardView(boardID: id)
+                    case .rooms: RoomsView()
+                    case .boards: BoardsView()
                     }
                 }
         }
         .modifier(ToastModifier(message: $app.toast))
+        .tint(Editorial.accent)
+        .preferredColorScheme(.light)
     }
 }

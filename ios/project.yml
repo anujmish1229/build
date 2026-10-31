@@ -9,7 +9,7 @@ packages:
     path: RoomScanKit
 settings:
   base:
-    MARKETING_VERSION: "0.7.0"
+    MARKETING_VERSION: "0.8.0"
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
 targets:
@@ -24,3 +24,22 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.anujmish1229.roomscan
         INFOPLIST_FILE: RoomScanApp/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
+  RoomScanUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [RoomScanUITests]
+    dependencies:
+      - target: RoomScan
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.anujmish1229.roomscan.uitests
+        TARGETED_DEVICE_FAMILY: "1,2"
+schemes:
+  RoomScan:
+    build:
+      targets:
+        RoomScan: all
+    test:
+      targets:
+        - RoomScanUITests
