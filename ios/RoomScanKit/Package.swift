@@ -6,7 +6,7 @@ let package = Package(
     platforms: [.iOS(.v16), .macOS(.v14)],
     products: [.library(name: "RoomScanKit", targets: ["RoomScanKit"])],
     targets: [
-        .target(name: "RoomScanKit"),
+        .target(name: "RoomScanKit", resources: [.process("Resources")]),
         .testTarget(name: "RoomScanKitTests", dependencies: ["RoomScanKit"], resources: [.copy("Fixtures")]),
     ]
 )
