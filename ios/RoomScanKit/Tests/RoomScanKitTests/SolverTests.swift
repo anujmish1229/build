@@ -247,7 +247,7 @@ private func randomPlan(_ dice: inout Dice, room: CanonicalRoom, catalog: Furnit
     @Test func builtInCatalogueNamesNoRetailer() throws {
         for e in FurnitureCatalog.bundled.entries where !e.isProp {
             #expect(e.catalogID.hasPrefix("sample_"))
-            #expect(e.store == "RoomScan Samples")
+            #expect(e.store == "Polter Samples")
             #expect(e.url == nil)
         }
         // Props have no store or link of their own. Some name shops that stock them.

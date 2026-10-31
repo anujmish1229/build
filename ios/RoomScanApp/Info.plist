@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key><string>en</string>
-	<key>CFBundleDisplayName</key><string>RoomScan</string>
+	<key>CFBundleDisplayName</key><string>Polter</string>
 	<key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
@@ -18,13 +18,13 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeName</key><string>RoomScan room</string>
+			<key>CFBundleTypeName</key><string>Polter room</string>
 			<key>CFBundleTypeRole</key><string>Editor</string>
 			<key>LSHandlerRank</key><string>Owner</string>
 			<key>LSItemContentTypes</key><array><string>com.anujmish1229.roomscan.scan</string></array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key><string>RoomScan design</string>
+			<key>CFBundleTypeName</key><string>Polter design</string>
 			<key>CFBundleTypeRole</key><string>Editor</string>
 			<key>LSHandlerRank</key><string>Owner</string>
 			<key>LSItemContentTypes</key><array><string>com.anujmish1229.roomscan.design</string></array>
@@ -34,14 +34,14 @@
 	<array>
 		<dict>
 			<key>UTTypeIdentifier</key><string>com.anujmish1229.roomscan.scan</string>
-			<key>UTTypeDescription</key><string>RoomScan room</string>
+			<key>UTTypeDescription</key><string>Polter room</string>
 			<key>UTTypeConformsTo</key><array><string>public.json</string></array>
 			<key>UTTypeTagSpecification</key>
 			<dict><key>public.filename-extension</key><array><string>roomscan</string></array></dict>
 		</dict>
 		<dict>
 			<key>UTTypeIdentifier</key><string>com.anujmish1229.roomscan.design</string>
-			<key>UTTypeDescription</key><string>RoomScan design</string>
+			<key>UTTypeDescription</key><string>Polter design</string>
 			<key>UTTypeConformsTo</key><array><string>public.json</string></array>
 			<key>UTTypeTagSpecification</key>
 			<dict><key>public.filename-extension</key><array><string>roomdesign</string></array></dict>

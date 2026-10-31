@@ -177,7 +177,7 @@ public enum StarterBoard {
             designs.append(DesignPackage(id: recipe.id, title: recipe.title, theme: recipe.theme, notes: option.summary,
                                          roomType: DesignPackage.roomType(of: option.plan), styles: DesignPackage.styles(of: option.plan, products: option.products),
                                          room: sample.room, colours: colours, plan: option.plan, layout: option.layout, products: option.products,
-                                         author: "RoomScan", createdAt: date))
+                                         author: "Polter", createdAt: date))
         }
         return FeedFile(title: "Inspiration", designs: designs)
     }

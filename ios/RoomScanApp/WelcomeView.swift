@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The way in, built from the "ROOMIFY : Haunted Edition" frame in Figma (390 × 844, scaled to the phone's
+/// The way in, built from the "Haunted Edition" frame in Figma (390 × 844, scaled to the phone's
 /// width). The app has no accounts, so the design's two buttons go to the two real ways in instead.
 struct WelcomeView: View {
     @EnvironmentObject private var app: AppModel
@@ -12,7 +12,7 @@ struct WelcomeView: View {
                 Editorial.paper
                 artwork("HauntedMoon", top: 0, height: 505, scale: scale)
                 artwork("HauntedPath", top: 505, height: 112, scale: scale)
-                title("ROOMIFY :", size: 43, top: 446, scale: scale)
+                title("Polter :", size: 43, top: 446, scale: scale)
                 shade(top: 465, height: 100, scale: scale, stops: [
                     .init(color: Self.dusk.opacity(0), location: 0), .init(color: Self.dusk, location: 0.4),
                     .init(color: Self.dusk, location: 0.55), .init(color: Self.dusk.opacity(0), location: 1),
