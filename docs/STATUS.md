@@ -11,3 +11,4 @@ One row per delivery version (requirements section 14). "Needs a person" lists d
 | 0.4 | 60 randomised rooms and plans never break a hard constraint, under the solver's checker and separate geometry checks; the same input gives the same layout | None |
 | 0.5 | Every room type designs legally with Apple Intelligence off; a brief has no field for a position, and junk from a stubbed model is dropped | Try a theme with Apple Intelligence on, on a supported phone |
 | 0.6 | Scene boxes match room.json; a USDZ file reloaded from disk measures the room's true size within 1 mm | Open Quick Look and AR on a phone and check the scale by eye |
+| 0.7 | Library, share files, typed changes and paint tested; older-format library and share files load; a damaged or newer library is kept, not overwritten | Send a file to a second phone and open it |

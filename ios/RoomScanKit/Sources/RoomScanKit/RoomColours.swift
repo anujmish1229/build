@@ -30,6 +30,21 @@ public struct RoomColours: Codable, Sendable, Equatable {
         return String(format: "#%02X%02X%02X", byte(r), byte(g), byte(b))
     }
 
+    /// Colours from camera samples: the median of each set, which ignores the odd lamp or chair, and a floor
+    /// type guessed from its colour (7.7). Nil without at least two samples of each.
+    public static func estimate(walls: [(Double, Double, Double)], floors: [(Double, Double, Double)]) -> RoomColours? {
+        guard walls.count >= 2, floors.count >= 2 else { return nil }
+        func median(_ samples: [(Double, Double, Double)]) -> (Double, Double, Double) {
+            func m(_ values: [Double]) -> Double { values.sorted()[values.count / 2] }
+            return (m(samples.map(\.0)), m(samples.map(\.1)), m(samples.map(\.2)))
+        }
+        let w = median(walls), f = median(floors)
+        let top = max(f.0, f.1, f.2), low = min(f.0, f.1, f.2), saturation = top - low, light = (top + low) / 2
+        let warm = f.0 > f.1 && f.1 > f.2
+        let type: FloorType = warm && saturation > 0.1 ? .wood : (saturation < 0.08 ? (light > 0.55 ? .tile : .concrete) : .carpet)
+        return RoomColours(wall: hex(r: w.0, g: w.1, b: w.2), floor: hex(r: f.0, g: f.1, b: f.2), floorType: type, detected: true)
+    }
+
     /// A plain name, such as "warm off-white" or "honey oak wood" (FR-M5).
     public static func name(_ hex: String, surface: String) -> String {
         guard let c = rgb(hex) else { return surface.isEmpty ? "unknown" : surface }

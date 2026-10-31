@@ -66,6 +66,11 @@ public struct CatalogEntry: Codable, Sendable, Equatable, Identifiable {
         note = try c.decodeIfPresent(String.self, forKey: .note)
     }
 
+    /// "$899 CAD", or nil without a price.
+    public var priceText: String? {
+        price.map { "$\(Int($0.rounded()))" + (currency.map { " \($0)" } ?? "") }
+    }
+
     static func webURL(_ text: String) -> URL? {
         URL(string: text).flatMap { ["https", "http"].contains($0.scheme?.lowercased() ?? "") ? $0 : nil }
     }
@@ -134,6 +139,12 @@ public struct FurnitureCatalog: Sendable {
     public static var current: FurnitureCatalog { bundled }
 
     public func entry(_ id: String?) -> CatalogEntry? { id.flatMap { byID[$0] } }
+
+    /// This catalogue's pieces, then those of `other` that it doesn't have.
+    public func merged(with other: FurnitureCatalog) -> FurnitureCatalog {
+        let ids = Set(entries.map(\.catalogID))
+        return FurnitureCatalog(entries: entries + other.entries.filter { !ids.contains($0.catalogID) }, updated: updated ?? other.updated)
+    }
 
     public func clearance(for item: FurnitureItem) -> Clearance {
         entry(item.catalogID)?.clearance ?? Self.defaultClearance[item.category] ?? Self.fallbackClearance

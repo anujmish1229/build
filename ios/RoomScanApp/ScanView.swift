@@ -6,13 +6,13 @@ import RoomPlan
 
 /// The whole capture flow: capability check, tutorial, capture, then result.
 struct ScanView: View {
-    /// Called when the user accepts a usable scan.
-    let onFinished: (RawRoom) -> Void
+    /// Called when the user accepts a usable scan, with the colours seen if there were enough samples.
+    let onFinished: (RawRoom, RoomColours?) -> Void
     /// The label for the accept button on the result screen.
     var continueTitle = "Continue"
 
     private enum Stage {
-        case tutorial, capturing, result(RawRoom), failed(String)
+        case tutorial, capturing, result(RawRoom, RoomColours?), failed(String)
     }
     @State private var stage: Stage = .tutorial
 
@@ -38,16 +38,16 @@ struct ScanView: View {
         case .capturing:
             CaptureScreen { result in
                 switch result {
-                case .success(let raw):
+                case .success(let (raw, colours)):
                     // A scan too small to use never replaces earlier data (FR-S8).
-                    stage = raw.hasEnoughWalls ? .result(raw)
+                    stage = raw.hasEnoughWalls ? .result(raw, colours)
                         : .failed("That scan found only \(raw.walls.count) wall\(raw.walls.count == 1 ? "" : "s"). A room needs at least three, so nothing was saved.")
                 case .failure:
                     stage = .failed("The scan didn't finish. Try again with more light, and move a little more slowly.")
                 }
             }
-        case .result(let raw):
-            ScanResultView(raw: raw, continueTitle: continueTitle, onContinue: { onFinished(raw) }, onRescan: { stage = .tutorial })
+        case .result(let raw, let colours):
+            ScanResultView(raw: raw, continueTitle: continueTitle, onContinue: { onFinished(raw, colours) }, onRescan: { stage = .tutorial })
         case .failed(let message):
             VStack(spacing: 16) {
                 Image(systemName: "exclamationmark.triangle").font(.largeTitle)
@@ -120,7 +120,7 @@ struct RawScanFile: Transferable {
 
 #if canImport(RoomPlan) && !targetEnvironment(simulator)
 private struct CaptureScreen: View {
-    let onResult: (Result<RawRoom, Error>) -> Void
+    let onResult: (Result<(RawRoom, RoomColours?), Error>) -> Void
     @State private var stopRequested = false
 
     var body: some View {
@@ -137,7 +137,7 @@ private struct CaptureScreen: View {
 
 private struct RoomCaptureRepresentable: UIViewRepresentable {
     @Binding var stopRequested: Bool
-    let onResult: (Result<RawRoom, Error>) -> Void
+    let onResult: (Result<(RawRoom, RoomColours?), Error>) -> Void
 
     func makeCoordinator() -> RoomCaptureCoordinator { RoomCaptureCoordinator(onResult: onResult) }
 
@@ -145,6 +145,7 @@ private struct RoomCaptureRepresentable: UIViewRepresentable {
         let view = RoomCaptureView(frame: .zero)
         view.delegate = context.coordinator
         view.captureSession.run(configuration: RoomCaptureSession.Configuration())
+        context.coordinator.sampler.start(view.captureSession.arSession)
         return view
     }
 
@@ -162,9 +163,10 @@ private struct RoomCaptureRepresentable: UIViewRepresentable {
 
 @objc(RoomCaptureCoordinator)
 final class RoomCaptureCoordinator: NSObject, RoomCaptureViewDelegate {
-    let onResult: (Result<RawRoom, Error>) -> Void
+    let onResult: (Result<(RawRoom, RoomColours?), Error>) -> Void
     var stopped = false
-    init(onResult: @escaping (Result<RawRoom, Error>) -> Void) { self.onResult = onResult }
+    let sampler = ColourSampler()
+    init(onResult: @escaping (Result<(RawRoom, RoomColours?), Error>) -> Void) { self.onResult = onResult }
     required init?(coder: NSCoder) { return nil }
     func encode(with coder: NSCoder) {}
 
@@ -174,13 +176,14 @@ final class RoomCaptureCoordinator: NSObject, RoomCaptureViewDelegate {
     }
 
     func captureView(didPresent processedResult: CapturedRoom, error: Error?) {
+        sampler.stop()
         if let error { onResult(.failure(error)); return }
-        onResult(.success(RoomPlanExport.rawRoom(from: processedResult)))
+        onResult(.success((RoomPlanExport.rawRoom(from: processedResult), sampler.colours)))
     }
 }
 #else
 private struct CaptureScreen: View {
-    let onResult: (Result<RawRoom, Error>) -> Void
+    let onResult: (Result<(RawRoom, RoomColours?), Error>) -> Void
     var body: some View { Text("Scanning isn't available on this device.") }
 }
 #endif
