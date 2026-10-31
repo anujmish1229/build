@@ -23,6 +23,7 @@ struct WelcomeView: View {
                 ])
                 title("Haunted Edition", size: 36, top: 498, scale: scale)
                 buttons.frame(maxHeight: .infinity, alignment: .bottom).padding(.bottom, 62 * scale)
+                credits.frame(maxHeight: .infinity, alignment: .bottom).padding(.bottom, 26 * scale)
             }
         }
         .ignoresSafeArea()
@@ -51,6 +52,16 @@ struct WelcomeView: View {
             .frame(height: height * scale)
             .offset(y: top * scale)
             .accessibilityHidden(true)
+    }
+
+    private var credits: some View {
+        (Text("Created by Anirud, Anuj, Suad, and Tamir ") + Text(Image(systemName: "heart.fill")).foregroundColor(.red))
+            .font(.footnote)
+            .foregroundStyle(Editorial.ink.opacity(0.7))
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 18)
+            .accessibilityLabel("Created by Anirud, Anuj, Suad, and Tamir")
+            .accessibilityIdentifier("welcomeCredits")
     }
 
     private var buttons: some View {
