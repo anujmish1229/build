@@ -21,7 +21,7 @@ struct FloorPlanView: View {
                 .contentShape(Rectangle())
                 .gesture(DragGesture(minimumDistance: 0).onChanged { handleChange($0, fit) }.onEnded { handleEnd($0, fit) })
         }
-        .background(Color(.secondarySystemBackground))
+        .background(Editorial.card)
         .accessibilityIdentifier("floorPlan")
         .accessibilityLabel("Floor plan with \(model.room.walls.count) walls and \(model.room.openings.count) openings")
     }
@@ -39,7 +39,7 @@ struct FloorPlanView: View {
             if i == 0 { floor.move(to: pt(p, fit)) } else { floor.addLine(to: pt(p, fit)) }
         }
         floor.closeSubpath()
-        ctx.fill(floor, with: .color(Color(.systemBackground)))
+        ctx.fill(floor, with: .color(Editorial.paper))
 
         for wall in room.walls {
             let selected = selection == .wall(wall.id)
@@ -63,7 +63,7 @@ struct FloorPlanView: View {
             let a = pt(wall.point(at: o.offset), fit), b = pt(wall.point(at: o.offset + o.width), fit)
             var gap = Path(); gap.move(to: a); gap.addLine(to: b)
             let tint: Color = bad ? .red : selected ? .accentColor : o.type == .window ? .blue : .brown
-            ctx.stroke(gap, with: .color(Color(.systemBackground)), lineWidth: 5)
+            ctx.stroke(gap, with: .color(Editorial.paper), lineWidth: 5)
             ctx.stroke(gap, with: .color(tint), style: StrokeStyle(lineWidth: selected ? 4 : 2, dash: o.type == .opening ? [4, 3] : []))
             guard o.type == .door else { continue }
             if let leaf = PlanGeometry.doorLeaf(o, wall: wall) {
@@ -96,7 +96,7 @@ struct FloorPlanView: View {
             let p = pt(c, fit)
             let r: CGFloat = draggedCorner == i ? 9 : 6
             let dot = Path(ellipseIn: CGRect(x: p.x - r, y: p.y - r, width: r * 2, height: r * 2))
-            ctx.fill(dot, with: .color(draggedCorner == i ? .accentColor : Color(.systemBackground)))
+            ctx.fill(dot, with: .color(draggedCorner == i ? .accentColor : Editorial.paper))
             ctx.stroke(dot, with: .color(.accentColor), lineWidth: 2)
         }
     }

@@ -22,7 +22,7 @@ struct PinDetailView: View {
     private var design: DesignPackage { pin.design }
 
     var body: some View {
-        List {
+        CardList {
             Section {
                 Group {
                     if let image = pictures.images[pin.id] {
@@ -62,6 +62,7 @@ struct PinDetailView: View {
                 }
             }
         }
+        .nightBackground()
         .navigationBarTitleDisplayMode(.inline)
         .task { pictures.request(pin) }
         .fullScreenCover(isPresented: $viewing) {
@@ -123,7 +124,7 @@ struct SaveToBoardSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            CardList {
                 Section("Your boards") {
                     ForEach(app.library.boards) { board in
                         Button {
@@ -150,6 +151,7 @@ struct SaveToBoardSheet: View {
                     .accessibilityIdentifier("createBoard")
                 }
             }
+            .nightBackground()
             .navigationTitle("Save")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() }.accessibilityIdentifier("saveDone") } }

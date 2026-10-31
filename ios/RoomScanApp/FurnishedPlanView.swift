@@ -22,7 +22,7 @@ struct FurnishedPlanView: View {
                 return path
             }
             let floor = outline(room.floorPolygon)
-            ctx.fill(floor, with: .color(Color(red: 0.96, green: 0.94, blue: 0.9)))
+            ctx.fill(floor, with: .color(Editorial.paper))
             ctx.stroke(floor, with: .color(.primary), lineWidth: 2.5)
             for o in room.openings {
                 guard let wall = room.wall(o.wallID) else { continue }

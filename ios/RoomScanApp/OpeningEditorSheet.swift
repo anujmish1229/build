@@ -17,7 +17,7 @@ struct OpeningEditorSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            CardForm {
                 if let opening {
                     Section("Position from the left corner, facing the wall") {
                         field("Position", $position)
@@ -46,6 +46,7 @@ struct OpeningEditorSheet: View {
                     }
                 }
             }
+            .nightBackground()
             .navigationTitle(opening?.type.plainName.capitalized ?? "Opening")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

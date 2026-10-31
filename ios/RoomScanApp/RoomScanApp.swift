@@ -5,6 +5,8 @@ import SwiftUI
 struct RoomScanApp: App {
     @StateObject private var app = AppModel()
 
+    init() { Editorial.applyAppearance() }
+
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -31,8 +33,12 @@ struct RootView: View {
                     }
                 }
         }
-        .modifier(ToastModifier(message: $app.toast))
         .tint(Editorial.accent)
-        .preferredColorScheme(.light)
+        .preferredColorScheme(.dark)
+        .overlay {
+            if !app.entered { WelcomeView().transition(.opacity) }
+        }
+        .animation(.easeOut(duration: 0.35), value: app.entered)
+        .modifier(ToastModifier(message: $app.toast))
     }
 }

@@ -28,7 +28,7 @@ struct NewDesignForm: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(Self.suggestions, id: \.self) { s in
-                        Button(s) { theme = s }.buttonStyle(.bordered).controlSize(.small)
+                        Button(s) { theme = s }.buttonStyle(.soft).controlSize(.small)
                     }
                 }
             }
@@ -59,7 +59,7 @@ struct NewDesignView: View {
     var body: some View {
         if let room = app.library.room(roomID) {
             let issues = RoomValidation.validate(room.room, units: app.units)
-            Form {
+            CardForm {
                 NewDesignForm(theme: $theme, mustHave: $mustHave, leaveOut: $leaveOut, budget: $budget)
                 Section("Room colours") {
                     ColourEditor(colours: Binding(get: { app.library.room(roomID)?.colours ?? RoomColours() }, set: { app.setColours(roomID, $0) }))
@@ -71,13 +71,14 @@ struct NewDesignView: View {
                     Button(action: { start(room) }) {
                         HStack {
                             Text(working ? "Designing…" : "Show me layouts")
-                            if working { Spacer(); ProgressView() }
+                            if working { Spacer(); PumpkinSpinner() }
                         }
                     }
                     .disabled(working || RoomValidation.hasErrors(issues))
                     .accessibilityIdentifier("designButton")
                 }
             }
+            .nightBackground()
             .navigationTitle("New design")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showPicker) {
@@ -152,7 +153,7 @@ struct DesignDetailView: View {
     var body: some View {
         if let design, let room = app.library.room(design.roomID) {
             let colours = room.colours
-            List {
+            CardList {
                 Section {
                     ObjectSceneView(room: room.room, layout: design.layout, colours: colours, wallPaint: design.wallPaint?.hex, interactive: false, onTap: { _ in })
                         .frame(height: 240).allowsHitTesting(false)
@@ -174,11 +175,11 @@ struct DesignDetailView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
                             ForEach(Self.suggestions, id: \.self) { s in
-                                Button(s) { request = s; runEdit(design, room) }.buttonStyle(.bordered).controlSize(.small)
+                                Button(s) { request = s; runEdit(design, room) }.buttonStyle(.soft).controlSize(.small)
                             }
                         }
                     }
-                    if working { ProgressView("Working…") }
+                    if working { HStack { PumpkinSpinner(); Text("Working…").foregroundStyle(.secondary) } }
                     ForEach(report, id: \.self) { Text($0).font(.footnote) }
                     if let undo {
                         Button("Undo that change") {
@@ -193,7 +194,7 @@ struct DesignDetailView: View {
                         ProductRow(piece: p, entry: design.products.first { $0.catalogID == p.catalogID })
                             .swipeActions {
                                 Button("Remove", role: .destructive) { apply(design) { DesignStudio.remove($0, itemID: p.itemID, room: room.room) } }
-                                Button("Swap") { swapping = p }.tint(.blue)
+                                Button("Swap") { swapping = p }.tint(Editorial.pumpkin)
                             }
                             .contextMenu {
                                 Button("Swap") { swapping = p }
@@ -227,6 +228,7 @@ struct DesignDetailView: View {
                     Button("Delete this design", role: .destructive) { confirmDelete = true }
                 }
             }
+            .nightBackground()
             .navigationTitle(design.name)
             .navigationBarTitleDisplayMode(.inline)
             .fullScreenCover(isPresented: $viewing) {
@@ -366,7 +368,9 @@ struct CatalogPicker: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                 }
+                .listRowBackground(Editorial.card)
             }
+            .nightBackground()
             .searchable(text: $search)
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)

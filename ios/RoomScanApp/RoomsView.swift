@@ -10,7 +10,7 @@ struct RoomsView: View {
     @State private var newRoom: SavedRoom?
 
     var body: some View {
-        List {
+        CardList {
             ForEach(app.library.rooms) { room in
                 Section {
                     NavigationLink(value: Route.room(room.id)) { RoomRow(room: room, designCount: app.library.designs(for: room.id).count, units: app.units) }
@@ -26,6 +26,7 @@ struct RoomsView: View {
                 Text("No rooms yet. Scan one, or add the sample rooms from the + menu.").foregroundStyle(.secondary)
             }
         }
+        .nightBackground()
         .navigationTitle("Rooms")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -91,7 +92,7 @@ struct RoomDetailView: View {
     var body: some View {
         if let room = app.library.room(roomID) {
             let issues = RoomValidation.validate(room.room, units: app.units)
-            List {
+            CardList {
                 Section {
                     FurnishedPlanView(room: room.room, layout: nil).frame(height: 240)
                     LabeledContent("Area", value: Units.area(room.room.derived.area, app.units))
@@ -123,6 +124,7 @@ struct RoomDetailView: View {
                     Button("Delete this room", role: .destructive) { confirmDelete = true }
                 }
             }
+            .nightBackground()
             .navigationTitle(room.name)
             .navigationBarTitleDisplayMode(.inline)
             .fullScreenCover(isPresented: $viewing) { RoomViewer(room: room.room, layout: nil, colours: room.colours) }
