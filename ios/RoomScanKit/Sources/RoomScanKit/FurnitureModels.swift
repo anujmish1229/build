@@ -102,6 +102,11 @@ public struct FurnitureCatalog: Sendable {
         "sofa": Clearance(front: 0.5),
         "tv_stand": Clearance(front: 0.9),
         "bookshelf": Clearance(front: 0.5),
+        // Holiday pieces can be walked right up to, and a tree's or a pumpkin's reach is already in its size.
+        "fireplace": Clearance(front: 0.5),
+        "christmas_tree": Clearance(), "gift_pile": Clearance(), "nutcracker": Clearance(), "reindeer": Clearance(),
+        "pumpkins": Clearance(), "cauldron": Clearance(), "skeleton": Clearance(), "candelabra": Clearance(),
+        "tombstones": Clearance(), "spooky_tree": Clearance(),
     ]
     static let fallbackClearance = Clearance(front: 0.3)
 

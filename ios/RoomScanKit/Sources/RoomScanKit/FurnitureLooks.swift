@@ -19,9 +19,11 @@ public struct Finish: Sendable, Equatable {
     public var r, g, b: Double
     public var roughness: Double
     public var metal: Double
+    /// How strongly it gives off its own light: flames, fairy lights, a lit shade.
+    public var glow: Double
 
-    public init(_ r: Double, _ g: Double, _ b: Double, roughness: Double = 0.75, metal: Double = 0) {
-        self.r = r; self.g = g; self.b = b; self.roughness = roughness; self.metal = metal
+    public init(_ r: Double, _ g: Double, _ b: Double, roughness: Double = 0.75, metal: Double = 0, glow: Double = 0) {
+        self.r = r; self.g = g; self.b = b; self.roughness = roughness; self.metal = metal; self.glow = glow
     }
 
     public func scaled(_ s: Double) -> Finish {
@@ -70,6 +72,8 @@ public struct Vibe: Sendable, Equatable {
 
     /// The looks the app knows, with the most distinctive first; the first one mentioned wins.
     static let all: [(word: String, vibe: Vibe)] = [
+        ("christmas", Vibe(wood: Finishes.table["mahogany"]!, fabric: Season.christmas.red.scaled(0.9), metal: Finishes.table["gold"]!, accent: Season.christmas.green)),
+        ("halloween", Vibe(wood: Finish(0.12, 0.09, 0.09), fabric: Season.halloween.green, metal: Finishes.table["iron"]!, accent: Season.halloween.red)),
         ("steampunk", Vibe(wood: Finishes.table["mahogany"]!, fabric: Finishes.table["leather"]!, metal: Finishes.table["brass"]!, accent: Finishes.table["copper"]!)),
         ("gothic", Vibe(wood: Finish(0.14, 0.1, 0.1), fabric: Finishes.table["velvet"]!.scaled(0.5), metal: Finishes.table["iron"]!, accent: Finishes.table["burgundy"]!)),
         ("cyberpunk", Vibe(wood: Finishes.table["black"]!, fabric: Finishes.table["charcoal"]!, metal: Finishes.table["chrome"]!, accent: Finish(0.85, 0.15, 0.6, roughness: 0.4))),

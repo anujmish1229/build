@@ -20,7 +20,7 @@ struct NewDesignForm: View {
     @Binding var leaveOut: String
     @Binding var budget: String
 
-    static let suggestions = ["Calm japandi bedroom", "Warm boho living room", "Minimalist home office", "Scandinavian dining room", "Dark moody lounge"]
+    static let suggestions = ["Cosy Christmas living room", "Haunted Halloween lounge", "Calm japandi bedroom", "Warm boho living room", "Minimalist home office", "Scandinavian dining room", "Dark moody lounge"]
 
     var body: some View {
         Section("Theme") {
@@ -195,10 +195,10 @@ struct DesignDetailView: View {
                         ProductRow(piece: p, entry: design.products.first { $0.catalogID == p.catalogID })
                             .swipeActions {
                                 Button("Remove", role: .destructive) { apply(design) { DesignStudio.remove($0, itemID: p.itemID, room: room.room) } }
-                                Button("Swap") { swapping = p }.tint(Editorial.pumpkin)
+                                if p.catalogID != nil { Button("Swap") { swapping = p }.tint(Editorial.pumpkin) }
                             }
                             .contextMenu {
-                                Button("Swap") { swapping = p }
+                                if p.catalogID != nil { Button("Swap") { swapping = p } }
                                 Button("Remove", role: .destructive) { apply(design) { DesignStudio.remove($0, itemID: p.itemID, room: room.room) } }
                             }
                     }
@@ -288,6 +288,8 @@ struct DesignDetailView: View {
                 $0.summary = option.summary
                 $0.products = option.products
                 $0.wallPaint = paint
+                // Changed, so it's the user's own design now.
+                $0.exampleOf = nil
             }
         }
     }

@@ -5,18 +5,16 @@ import SceneKit
 
 /// Draws each piece in code at its real size, in a form that suits its kind (FR-O5). Parts are built in the
 /// piece's own frame: width along x, depth along z with the front at +z, y up, origin on the floor. Every
-/// part stays inside the size the product states; only a rug extends past it, flat on the floor.
+/// part stays inside the size the product states.
 struct FurnitureBuilder {
     let w: Double
     let d: Double
     let h: Double
     let category: String
     let look: ResolvedLook
-    /// How far a rug may reach in front: the piece's own clear space.
-    let rugReach: Double
+    /// The holiday being decorated for, if any.
+    var season: Season?
     let root = SCNNode()
-
-    static let rugName = "rug"
 
     static func material(_ f: Finish) -> SCNMaterial {
         let m = SCNMaterial()
@@ -24,6 +22,9 @@ struct FurnitureBuilder {
         m.diffuse.contents = CGColor(srgbRed: f.r, green: f.g, blue: f.b, alpha: 1)
         m.roughness.contents = f.roughness
         m.metalness.contents = f.metal
+        if f.glow > 0 {
+            m.emission.contents = CGColor(srgbRed: min(f.r * f.glow, 1), green: min(f.g * f.glow, 1), blue: min(f.b * f.glow, 1), alpha: 1)
+        }
         return m
     }
 
@@ -52,9 +53,61 @@ struct FurnitureBuilder {
     }
 
     func sphere(_ x: Double, _ y: Double, _ z: Double, _ r: Double, _ f: Finish) {
-        let g = SCNSphere(radius: CGFloat(max(r, 0.002)))
+        ellipsoid(x, y, z, r, r, r, f)
+    }
+
+    /// A sphere by its centre, squashed or stretched along each axis.
+    func ellipsoid(_ x: Double, _ y: Double, _ z: Double, _ rx: Double, _ ry: Double, _ rz: Double, _ f: Finish) {
+        let g = SCNSphere(radius: 1)
+        g.segmentCount = 14
         g.materials = [Self.material(f)]
         let node = SCNNode(geometry: g)
+        node.position = SCNVector3(Float(x), Float(y), Float(z))
+        node.scale = SCNVector3(Float(max(rx, 0.002)), Float(max(ry, 0.002)), Float(max(rz, 0.002)))
+        root.addChildNode(node)
+    }
+
+    /// A rod between two points, for branches, bones and wire.
+    func limb(_ a: SIMD3<Double>, _ b: SIMD3<Double>, _ r: Double, _ f: Finish) {
+        let delta = b - a
+        let length = (delta * delta).sum().squareRoot()
+        guard length > 1e-4 else { return }
+        let g = SCNCylinder(radius: CGFloat(max(r, 0.002)), height: CGFloat(length))
+        g.radialSegmentCount = 8
+        g.materials = [Self.material(f)]
+        let node = SCNNode(geometry: g)
+        let mid = (a + b) / 2
+        node.position = SCNVector3(Float(mid.x), Float(mid.y), Float(mid.z))
+        // A cylinder runs along y: turn y onto the rod's direction.
+        node.simdOrientation = simd_quatf(from: SIMD3<Float>(0, 1, 0), to: simd_normalize(SIMD3<Float>(Float(delta.x), Float(delta.y), Float(delta.z))))
+        root.addChildNode(node)
+    }
+
+    /// A ring lying flat, or standing up facing +z.
+    func ring(_ x: Double, _ y: Double, _ z: Double, _ r: Double, _ pipe: Double, _ f: Finish, standing: Bool = false) {
+        let g = SCNTorus(ringRadius: CGFloat(r), pipeRadius: CGFloat(pipe))
+        g.ringSegmentCount = 20
+        g.pipeSegmentCount = 8
+        g.materials = [Self.material(f)]
+        let node = SCNNode(geometry: g)
+        node.position = SCNVector3(Float(x), Float(y), Float(z))
+        if standing { node.eulerAngles.x = .pi / 2 }
+        root.addChildNode(node)
+    }
+
+    /// Physically based materials take far less light up close than the numbers below suggest.
+    static let glowScale = 0.16
+
+    /// A small light, so glowing things light what's around them.
+    func glowLight(_ x: Double, _ y: Double, _ z: Double, _ colour: (Double, Double, Double), intensity: Double, reach: Double = 3.5) {
+        let light = SCNLight()
+        light.type = .omni
+        light.color = CGColor(srgbRed: colour.0, green: colour.1, blue: colour.2, alpha: 1)
+        light.intensity = CGFloat(intensity * Self.glowScale)
+        light.attenuationStartDistance = 0
+        light.attenuationEndDistance = CGFloat(reach)
+        let node = SCNNode()
+        node.light = light
         node.position = SCNVector3(Float(x), Float(y), Float(z))
         root.addChildNode(node)
     }
@@ -84,15 +137,20 @@ struct FurnitureBuilder {
         case "storage", "tv_stand": cabinet()
         case "lamp": lamp()
         case "plant": plant()
+        case "fireplace": fireplace()
+        case "christmas_tree": christmasTree()
+        case "gift_pile": giftPile()
+        case "nutcracker": nutcracker()
+        case "reindeer": reindeer()
+        case "pumpkins": pumpkinPatch()
+        case "cauldron": cauldron()
+        case "skeleton": skeleton()
+        case "candelabra": candelabra()
+        case "tombstones": tombstones()
+        case "spooky_tree": spookyTree()
         default: box(0, 0, 0, w, h, d, look.body)
         }
         return root
-    }
-
-    private func rug(under: Bool) {
-        guard rugReach > 0.05 else { return }
-        let reach = min(rugReach * 0.9, 0.5)
-        box(0, 0, d / 2 - d * 0.15 + reach / 2, w * 0.96, 0.008, d * 0.3 + reach, look.accent.scaled(0.95), chamfer: 0, name: Self.rugName)
     }
 
     private func bed() {
@@ -104,10 +162,14 @@ struct FurnitureBuilder {
         box(0, frameH, head / 2, w - 0.04, mattress, d - head - 0.04, look.bedding, chamfer: 0.04)
         // A throw across the foot, and pillows at the head.
         box(0, top - 0.04, d * 0.28, w - 0.02, 0.05, d * 0.3, look.accent, chamfer: 0.02)
+        box(0, top + 0.008, d * 0.1, w - 0.06, 0.012, 0.05, look.accent.scaled(1.25), chamfer: 0.004)
+        let room = h - top
         for sign in [-1.0, 1.0] {
-            box(sign * w * 0.23, top, -d / 2 + head + 0.2, w * 0.4, min(0.12, h - top), 0.36, look.bedding.scaled(0.97), chamfer: 0.04)
+            // A big square pillow leaning behind a smaller one.
+            box(sign * w * 0.23, top, -d / 2 + head + 0.14, w * 0.4, min(0.2, room), 0.14, look.bedding.scaled(0.92), chamfer: 0.04)
+            box(sign * w * 0.23, top, -d / 2 + head + 0.32, w * 0.38, min(0.12, room), 0.26, look.bedding.scaled(0.99), chamfer: 0.04)
         }
-        rug(under: true)
+        box(0, top, -d / 2 + head + 0.5, w * 0.26, min(0.14, room), 0.11, look.accent.scaled(1.1), chamfer: 0.035)
     }
 
     private func sofa(seats: Int) {
@@ -126,7 +188,13 @@ struct FurnitureBuilder {
         }
         // A cushion from the design's look.
         box(-inner / 2 + 0.18, seatH, 0, 0.3, min(0.26, h - seatH), 0.12, look.accent, chamfer: 0.04)
-        if seats > 1 { rug(under: true) }
+        if seats > 1 {
+            box(inner / 2 - 0.18, seatH, 0, 0.3, min(0.26, h - seatH), 0.12, look.accent.scaled(1.2), chamfer: 0.04)
+            box(inner / 2 - 0.42, seatH, 0.03, 0.26, min(0.22, h - seatH), 0.11, look.bedding, chamfer: 0.04)
+            // A throw over one seat.
+            box(inner / 2 - each / 2, seatH + 0.002, 0.02, each * 0.55, 0.018, d - back - 0.1, look.accent.scaled(0.8), chamfer: 0.006)
+            box(inner / 2 - each / 2, 0.14, d / 2 - 0.006, each * 0.55, seatH - 0.14, 0.012, look.accent.scaled(0.8), chamfer: 0.004)
+        }
     }
 
     private func chair() {
@@ -196,14 +264,22 @@ struct FurnitureBuilder {
             let y = gap * Double(s)
             box(0, y, 0, w - 2 * side, side, d, look.body, chamfer: 0.002)
             guard s < shelves else { continue }
-            // Books on every other shelf, leaving room to breathe.
-            guard s % 2 == 1 else { continue }
-            var x = -w / 2 + side + 0.03, n = 0
-            while x < w * 0.1 {
+            // Books on every shelf, from alternating ends, with an ornament in what's left.
+            let fromLeft = s % 2 == 0, reach = w * (s % 3 == 0 ? 0.62 : 0.5)
+            var along = 0.03, n = s * 3
+            while along < reach {
                 let t = 0.025 + 0.012 * Double(n % 3)
-                box(x + t / 2, y + side, 0.01, t, gap * (0.6 + 0.08 * Double(n % 4)), d * 0.7, colours[n % colours.count], chamfer: 0.002)
-                x += t + 0.003
+                let x = (fromLeft ? -1.0 : 1.0) * (w / 2 - side - along - t / 2)
+                box(x, y + side, 0.01, t, gap * (0.56 + 0.08 * Double(n % 4)), d * 0.7, colours[n % colours.count], chamfer: 0.002)
+                along += t + 0.003
                 n += 1
+            }
+            let rest = (fromLeft ? 1.0 : -1.0) * (w / 2 - side - (w - 2 * side - along) / 2)
+            if s % 2 == 0 {
+                cylinder(rest, y + side, 0, 0.045, gap * 0.45, colours[(s + 1) % colours.count], top: 0.025)
+            } else {
+                box(rest, y + side, 0.01, 0.12, 0.05, d * 0.6, look.accent.scaled(0.85), chamfer: 0.006)
+                sphere(rest, y + side + 0.09, 0.01, 0.04, look.frame)
             }
         }
     }
@@ -224,17 +300,25 @@ struct FurnitureBuilder {
         let r = min(w, d) / 2, shade = min(0.34, h * 0.24)
         cylinder(0, 0, 0, r * 0.65, 0.03, look.frame)
         cylinder(0, 0.03, 0, 0.012, h - shade - 0.03, look.frame)
-        cylinder(0, h - shade, 0, r, shade, Finish(0.95, 0.9, 0.8, roughness: 0.9), top: r * 0.72)
+        cylinder(0, h - shade, 0, r, shade, Finish(0.98, 0.9, 0.74, roughness: 0.9, glow: 0.55), top: r * 0.72)
+        glowLight(0, h - shade / 2, 0, (1, 0.8, 0.55), intensity: 30, reach: 2)
     }
 
     private func plant() {
         let r = min(w, d) / 2, pot = min(0.34, h * 0.28)
         cylinder(0, 0, 0, r * 0.62, pot, look.bedding.scaled(0.9), top: r * 0.8)
-        cylinder(0, pot, 0, 0.02, (h - pot) * 0.55, Finish(0.32, 0.22, 0.14))
-        let leaf = Finish(0.22, 0.42, 0.2, roughness: 0.75)
-        let crown = min(r * 0.62, (h - pot) * 0.28)
-        for (dx, dy, dz) in [(0.0, 0.0, 0.0), (0.55, -0.45, 0.2), (-0.5, -0.55, -0.2), (0.1, -0.7, -0.55), (-0.15, -0.35, 0.55)] {
-            sphere(dx * r * 0.6, h - crown + dy * crown, dz * r * 0.6, crown, dy == 0 ? leaf : leaf.scaled(1.15))
+        cylinder(0, pot + 0.001, 0, r * 0.74, 0.006, Finish(0.16, 0.11, 0.08))
+        cylinder(0, pot, 0, 0.018, (h - pot) * 0.72, Finish(0.32, 0.22, 0.14))
+        // Broad leaves spiralling up the stem, lighter towards the top.
+        let count = 22
+        for i in 0..<count {
+            let t = Double(i) / Double(count - 1)
+            let angle = Double(i) * 2.4
+            let y = pot + (h - pot) * (0.26 + 0.64 * t)
+            let leaf = r * (0.42 - 0.08 * t)
+            let reach = min(r - leaf * 0.9, r * (0.62 - 0.32 * t))
+            let shade = Finish(0.13 + 0.12 * t, 0.33 + 0.16 * t, 0.15 + 0.06 * t, roughness: 0.55)
+            ellipsoid(cos(angle) * reach, min(y, h - leaf * 0.5), sin(angle) * reach, leaf * 0.92, leaf * 0.5, leaf * 0.7, shade)
         }
     }
 }

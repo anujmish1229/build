@@ -179,7 +179,7 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 - **FR-M3** The rooms list shall show a plan thumbnail, area, design count, colour swatches, the room's designs and a "New design" action.
 - **FR-M4** A room's page shall show the plan, area, ceiling height, wall and opening counts, editable colours and its designs, with actions to check the floor plan, rescan, send, rename and delete. Deleting a room needs confirmation and removes its designs.
 - **FR-M5** Colours shall be editable with a colour picker, with plain names ("warm off-white", "honey oak wood"), and a floor type: wood, laminate, tile, carpet or concrete.
-- **FR-M6** Three sample rooms (a rectangular bedroom, a living room with an alcove and an L-shaped studio) shall be added when the library has no rooms at launch, and can be added at any time from the Rooms menu.
+- **FR-M6** Four sample rooms (a rectangular bedroom, a living room with an alcove, an L-shaped studio and a holiday example room) shall be added when the library has no rooms at launch, and can be added at any time from the Rooms menu. Each comes furnished with its ready-made designs; the holiday room has a Christmas and a Halloween design. A library from an earlier version gets these once: its untouched sample rooms are furnished and the holiday room is added.
 - **FR-M7** A room from the earlier one-room version of the app shall be migrated into the library once, as "My room".
 
 ### 4.7 Designs (FR-G)
@@ -200,7 +200,7 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 - **FR-B1** The home screen shall be a two-column masonry board of designs, each with a picture rendered on the device, its title, piece count and total price.
 - **FR-B2** It shall show the user's own designs, then those shared with them, then the feed, then the starter inspiration. Each shows where it came from.
 - **FR-B3** Filters shall cover the source (All, Yours, Shared and Feed, the last two when there are any), room type (bedroom, living, office, dining) and style (japandi, scandinavian, mid-century, modern, boho, minimalist, warm, dark).
-- **FR-B4** The starter board shall have eight designs, made from the sample rooms and the catalogue in use. Designs for the built-in catalogue ship ready-made, and a test keeps them in step with the planner.
+- **FR-B4** The starter board shall have ten designs, including one each for Christmas and Halloween, made from the sample rooms and the catalogue in use. Designs for the built-in catalogue ship ready-made, and a test keeps them in step with the planner. A ready-made design in a sample room isn't shown again as the user's own until they change it.
 - **FR-B5** A design's page shall show its picture, source, title, price, stores, note and colours, a "Shop the look" list with product links, and actions: 3D or AR, Save, Remix, Share. A shared design can be deleted.
 - **FR-B6** The user shall be able to save a design to one or more named boards, creating one on the spot. Saved designs are kept as a copy, so they survive being dropped from a feed.
 - **FR-B7** The user shall be able to create, open, rename and delete boards, and remove a design from a board.
@@ -235,11 +235,11 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 
 ### 4.13 3D, AR and pictures (FR-O)
 - **FR-O1** The room shall be shown in 3D from its data: floor and walls in the room's colours, with doors and windows, at real scale in metres, Y-up, with walls outside the outline so interior dimensions are exact.
-- **FR-O2** The Object view shall orbit and zoom, with walls cut away at 1.1 m like a doll's house.
+- **FR-O2** The Object view shall orbit and zoom, with the walls between the camera and the room hidden as it moves, so the room can be seen into from any angle and what hangs on the walls stays in view.
 - **FR-O3** On devices that support it, the AR view shall place the room on a detected floor or table at table size (8%) or real size, with see-through walls, on-screen coaching, and a "Move" action.
 - **FR-O4** Tapping a piece in either view shall show a card with its name, store, price, size and note, with a "View in store" button.
 - **FR-O5** Each piece shall be drawn in code at its real size, in a form that suits its kind and the design's style, in finishes taken from its product data, name or the design's look.
-- **FR-O6** The look shall set what the products don't: bedding, cushions, throws, rugs, lamps and wall decor. It covers named vibes (such as japandi, steampunk, gothic, art deco, boho, industrial), materials and accent colours.
+- **FR-O6** The look shall set what the products don't: bedding, cushions, throws, rugs, lamps and wall decor. It covers named vibes (such as japandi, steampunk, gothic, art deco, boho, industrial), materials and accent colours. Rugs, curtains, pictures, table settings and holiday decoration are worked out from the room and layout when drawn, so they follow every edit, and they are never products. Christmas and Halloween themes also add decorations that the solver places like any piece, with no price.
 - **FR-O7** The app shall render still pictures of designs on the device for the Board and for sharing, leaving out the walls nearest the camera and art on those walls.
 - **FR-O8** All outputs shall be reproducible from the room, the layout, the look and the products.
 

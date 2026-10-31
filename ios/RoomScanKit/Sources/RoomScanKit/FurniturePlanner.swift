@@ -71,7 +71,7 @@ public enum FurniturePlanner {
     public static let aiProvider = "Apple Intelligence (on this phone)"
     public static let rulesProvider = "Built-in rules"
     public static let roomTypes = ["bedroom", "living", "office", "dining"]
-    public static let styles = ["japandi", "scandinavian", "mid-century", "modern", "boho", "minimalist", "warm", "dark"]
+    public static let styles = ["christmas", "halloween", "japandi", "scandinavian", "mid-century", "modern", "boho", "minimalist", "warm", "dark"]
     public static let categories = ["bed", "nightstand", "desk", "chair", "wardrobe", "dresser", "bookshelf", "storage", "sofa",
                                     "armchair", "coffee_table", "tv_stand", "side_table", "lamp", "plant", "dining_table", "bench"]
     public static let materialNames = ["oak", "walnut", "pine", "ash", "brass", "steel", "leather", "linen", "velvet", "rattan", "marble", "concrete", "wool"]
@@ -100,6 +100,8 @@ public enum FurniturePlanner {
         "storage": ["storage", "cabinet", "sideboard"], "sofa": ["sofa", "couch"], "armchair": ["armchair"],
         "coffee_table": ["coffee"], "tv_stand": ["tv", "television", "media"], "side_table": ["side"], "lamp": ["lamp", "light"],
         "plant": ["plant", "plants"], "dining_table": ["dining"], "bench": ["bench"],
+        "fireplace": ["fireplace"], "christmas_tree": ["tree"], "pumpkins": ["pumpkin", "pumpkins"], "cauldron": ["cauldron"],
+        "skeleton": ["skeleton"], "candelabra": ["candelabra"], "tombstones": ["tombstone", "tombstones"],
     ]
 
     /// The kind of piece some words name. Specific kinds first: "bedside table" is a nightstand, not a table.
@@ -128,7 +130,8 @@ public enum FurniturePlanner {
         if type == nil { type = area < 12 ? "bedroom" : "living" }
         if constraints.mustHave.contains(where: { kind(of: words($0)) == "bed" }) { type = "bedroom" }
         let aliases: [String: String] = ["midcentury": "mid-century", "scandi": "scandinavian", "nordic": "scandinavian", "cozy": "warm",
-                                         "cosy": "warm", "minimal": "minimalist", "contemporary": "modern", "moody": "dark", "bohemian": "boho"]
+                                         "cosy": "warm", "minimal": "minimalist", "contemporary": "modern", "moody": "dark", "bohemian": "boho",
+                                         "xmas": "christmas", "festive": "christmas", "spooky": "halloween", "haunted": "halloween"]
         var style = styles.filter { themeWords.contains($0) }
         for (alias, word) in aliases.sorted(by: { $0.key < $1.key }) where themeWords.contains(alias) && !style.contains(word) {
             style.append(word)
@@ -211,9 +214,14 @@ public enum FurniturePlanner {
         let category: String
         let rule: PlacementRule
         let priority: Int
+        /// Set for a decoration that isn't a catalogue product, so it never counts towards the price.
+        var prop: Season.Prop? = nil
     }
 
-    /// The pieces for a room type (7.5).
+    /// Priority of a piece that only dresses the room: left out quietly if there's no space for it.
+    static let extraPriority = 5
+
+    /// The pieces for a room type (7.5). A bigger room gets a second seating or storage area as extras.
     static func slots(_ type: String, roles r: WallRoles, area: Double, askedForDesk: Bool) -> [Slot] {
         switch type {
         case "bedroom":
@@ -226,12 +234,18 @@ public enum FurniturePlanner {
             ]
             if askedForDesk || area > 12 {
                 list.append(Slot(id: "desk", category: "desk", rule: .corner(wallID: r.secondSide, corner: "start"), priority: 3))
-                list.append(Slot(id: "chair", category: "chair", rule: .inFrontOf(targetItemID: "desk", gap: 0.1), priority: 3))
+                list.append(Slot(id: "chair", category: "chair", rule: .inFrontOf(targetItemID: "desk", gap: 0.1), priority: extraPriority))
             }
             list.append(Slot(id: "plant", category: "plant", rule: .corner(wallID: r.main, corner: "end"), priority: 4))
+            list.append(Slot(id: "bench", category: "bench", rule: .inFrontOf(targetItemID: "bed", gap: 0.03), priority: extraPriority))
+            list.append(Slot(id: "lamp", category: "lamp", rule: .corner(wallID: r.main, corner: "start"), priority: extraPriority))
             return list
         case "office":
-            return [
+            let lounge = area > 24 ? [
+                Slot(id: "work_table", category: "dining_table", rule: .centeredInRoom, priority: extraPriority),
+                Slot(id: "coffee_table", category: "coffee_table", rule: .inFrontOf(targetItemID: "armchair", gap: 0.3), priority: extraPriority),
+            ] : []
+            return lounge + [
                 Slot(id: "desk", category: "desk", rule: .againstWall(wallID: r.main, align: "center"), priority: 1),
                 Slot(id: "chair", category: "chair", rule: .inFrontOf(targetItemID: "desk", gap: 0.1), priority: 1),
                 Slot(id: "bookshelf", category: "bookshelf", rule: .againstWall(wallID: r.opposite, align: "center"), priority: 2),
@@ -239,13 +253,25 @@ public enum FurniturePlanner {
                 Slot(id: "armchair", category: "armchair", rule: .corner(wallID: r.secondSide, corner: "start"), priority: 3),
                 Slot(id: "lamp", category: "lamp", rule: .beside(targetItemID: "desk", side: "left", gap: 0.05), priority: 3),
                 Slot(id: "plant", category: "plant", rule: .corner(wallID: r.main, corner: "end"), priority: 4),
+                Slot(id: "side_table", category: "side_table", rule: .beside(targetItemID: "armchair", side: "right", gap: 0.05), priority: extraPriority),
+                Slot(id: "bookshelf_2", category: "bookshelf", rule: .beside(targetItemID: "bookshelf", side: "left", gap: 0.02), priority: extraPriority),
+                Slot(id: "bookshelf_3", category: "bookshelf", rule: .beside(targetItemID: "bookshelf", side: "right", gap: 0.02), priority: extraPriority),
+                Slot(id: "bench", category: "bench", rule: .againstWall(wallID: r.opposite, align: "start"), priority: extraPriority),
             ]
         case "dining":
-            return [
+            let lounge = area > 24 ? [
+                Slot(id: "coffee_table", category: "coffee_table", rule: .inFrontOf(targetItemID: "armchair", gap: 0.3), priority: extraPriority),
+                Slot(id: "dresser", category: "dresser", rule: .againstWall(wallID: r.secondSide, align: "center"), priority: extraPriority),
+            ] : []
+            return lounge + [
                 Slot(id: "dining_table", category: "dining_table", rule: .centeredInRoom, priority: 1),
                 Slot(id: "storage", category: "storage", rule: .againstWall(wallID: r.main, align: "center"), priority: 2),
                 Slot(id: "bench", category: "bench", rule: .againstWall(wallID: r.firstSide, align: "center"), priority: 3),
                 Slot(id: "plant", category: "plant", rule: .corner(wallID: r.main, corner: "end"), priority: 4),
+                Slot(id: "bookshelf", category: "bookshelf", rule: .againstWall(wallID: r.opposite, align: "center"), priority: extraPriority),
+                Slot(id: "armchair", category: "armchair", rule: .corner(wallID: r.secondSide, corner: "start"), priority: extraPriority),
+                Slot(id: "side_table", category: "side_table", rule: .beside(targetItemID: "armchair", side: "right", gap: 0.05), priority: extraPriority),
+                Slot(id: "lamp", category: "lamp", rule: .beside(targetItemID: "armchair", side: "left", gap: 0.05), priority: extraPriority),
             ]
         default:
             return [
@@ -257,6 +283,9 @@ public enum FurniturePlanner {
                 Slot(id: "lamp", category: "lamp", rule: .beside(targetItemID: "sofa", side: "right", gap: 0.05), priority: 3),
                 Slot(id: "bookshelf", category: "bookshelf", rule: .againstWall(wallID: r.firstSide, align: "end"), priority: 3),
                 Slot(id: "plant", category: "plant", rule: .corner(wallID: r.main, corner: "end"), priority: 4),
+                Slot(id: "armchair_2", category: "armchair", rule: .corner(wallID: r.firstSide, corner: "end"), priority: extraPriority),
+                Slot(id: "storage", category: "storage", rule: .againstWall(wallID: r.secondSide, align: "center"), priority: extraPriority),
+                Slot(id: "bench", category: "bench", rule: .againstWall(wallID: r.opposite, align: "start"), priority: extraPriority),
             ]
         }
     }
@@ -272,6 +301,14 @@ public enum FurniturePlanner {
         let mustKinds = musts.map { (text: $0, words: words($0), kind: kind(of: words($0))) }
         let askedForDesk = mustKinds.contains { $0.kind == "desk" } || brief.wanted.contains("desk")
         var list = slots(type, roles: roles, area: room.derived.area, askedForDesk: askedForDesk)
+        // A holiday theme, however the brief was read, changes what goes in the room and sets its look.
+        var brief = brief
+        let season = Season.of(words(theme).union(words(brief.styleWords.joined(separator: " "))))
+        if let season {
+            list = season.slots(list, type: type, roles: roles, area: room.derived.area)
+            brief.styleWords.removeAll { $0 == season.rawValue }
+            brief.styleWords.insert(season.rawValue, at: 0)
+        }
 
         // Must-haves replace the plan's piece of that kind, or add one (FR-L7).
         var nameWordsByKind: [String: Set<String>] = [:]
@@ -315,16 +352,23 @@ public enum FurniturePlanner {
         var items: [FurnitureItem] = []
         var missing = Set<String>()
         for slot in list {
+            if let prop = slot.prop {
+                items.append(FurnitureItem(itemID: slot.id, name: prop.name, category: slot.category, size: prop.size,
+                                           style: brief.styleWords.joined(separator: " "), placement: slot.rule, priority: slot.priority))
+                continue
+            }
             let wanted = nameWordsByKind[slot.category] ?? []
-            guard let entry = bestEntry(slot.category, brief: brief, catalog: catalog, budget: budget, nameWords: wanted) else {
+            guard let entry = bestEntry(slot.category, brief: brief, catalog: catalog, budget: budget, nameWords: wanted.union(season?.preferredFinishes ?? [])) else {
                 if missing.insert(slot.category).inserted { notes.append("The catalogue has no \(slot.category.replacingOccurrences(of: "_", with: " ")).") }
                 continue
             }
             if !wanted.isEmpty, words(entry.name).isDisjoint(with: wanted) {
                 notes.append("Nothing called “\(wanted.sorted().joined(separator: " "))” is in the catalogue, so \(entry.name) is used.")
             }
+            // Something the user asked for is never just an extra.
+            let priority = mustKinds.contains { $0.kind == slot.category } ? min(slot.priority, 3) : slot.priority
             items.append(FurnitureItem(itemID: slot.id, catalogID: entry.catalogID, name: entry.name, category: entry.category,
-                                       size: entry.size, style: brief.styleWords.joined(separator: " "), placement: slot.rule, priority: slot.priority))
+                                       size: entry.size, style: brief.styleWords.joined(separator: " "), placement: slot.rule, priority: priority))
         }
         // A piece whose target wasn't in the catalogue can't be placed either.
         let ids = Set(items.map(\.itemID))
@@ -337,8 +381,22 @@ public enum FurniturePlanner {
     /// least 15% smaller by footprint. The retry is kept only if more pieces fit (FR-L10).
     public static func fitted(_ plan: FurniturePlan, room: CanonicalRoom, catalog: FurnitureCatalog = .current)
         -> (plan: FurniturePlan, layout: FurnitureLayout, swaps: [String]) {
+        let result = fittedWithExtras(plan, room: room, catalog: catalog)
+        // Extras are a bonus: one that doesn't fit is simply not in the design, and isn't reported as a problem.
+        let extras = Set(result.plan.items.filter { $0.priority >= extraPriority }.map(\.itemID))
+        let dropped = Set(result.layout.unplaced.map(\.itemID)).intersection(extras)
+        guard !dropped.isEmpty else { return result }
+        var kept = result.plan, layout = result.layout
+        kept.items.removeAll { dropped.contains($0.itemID) }
+        layout.unplaced.removeAll { dropped.contains($0.itemID) }
+        return (kept, layout, result.swaps)
+    }
+
+    private static func fittedWithExtras(_ plan: FurniturePlan, room: CanonicalRoom, catalog: FurnitureCatalog)
+        -> (plan: FurniturePlan, layout: FurnitureLayout, swaps: [String]) {
         let layout = LayoutSolver.solve(room, plan, catalog: catalog)
-        let misfits = Set(layout.unplaced.filter { !$0.reason.hasPrefix("target ") }.map(\.itemID))
+        let extras = Set(plan.items.filter { $0.priority >= extraPriority }.map(\.itemID))
+        let misfits = Set(layout.unplaced.filter { !$0.reason.hasPrefix("target ") && !extras.contains($0.itemID) }.map(\.itemID))
         guard !misfits.isEmpty else { return (plan, layout, []) }
         var retry = plan
         var swaps: [String] = []
@@ -359,7 +417,10 @@ public enum FurniturePlanner {
         }
         guard !swaps.isEmpty else { return (plan, layout, []) }
         let second = LayoutSolver.solve(room, retry, catalog: catalog)
-        return second.placed.count > layout.placed.count ? (retry, second, swaps) : (plan, layout, [])
+        // Pieces that matter count first: a wardrobe that now fits is worth a bench that no longer does.
+        func core(_ l: FurnitureLayout) -> Int { l.placed.filter { !extras.contains($0.itemID) }.count }
+        let better = (core(second), second.placed.count) > (core(layout), layout.placed.count)
+        return better ? (retry, second, swaps) : (plan, layout, [])
     }
 
     /// Theme to furnished layout: read, choose, place, and explain.

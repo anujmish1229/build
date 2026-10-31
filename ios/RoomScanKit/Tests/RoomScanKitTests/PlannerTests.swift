@@ -122,6 +122,39 @@ import Testing
         #expect(turned.main == "w1" && turned.opposite == "w3")
     }
 
+    @Test(arguments: [("christmas living room", "christmas", "christmas_tree"), ("xmas lounge", "christmas", "christmas_tree"),
+                      ("halloween living room", "halloween", "pumpkins"), ("spooky lounge", "halloween", "pumpkins")])
+    func aHolidayThemeAddsDecorationsLegally(_ theme: String, _ word: String, _ piece: String) async {
+        let room = SampleRooms.all[3].room
+        let r = await result(room, theme)
+        #expect(r.plan.style?.words.first == word)
+        #expect(r.layout.placed.contains { $0.category == piece })
+        #expect(r.layout.placed.contains { $0.category == "fireplace" })
+        #expect(LayoutSolver.check(room, r.layout, r.plan, catalog: catalog).isEmpty)
+        // Decorations aren't products: they have no catalogue entry and add nothing to the price.
+        for item in r.plan.items where Season.isDecoration(item.category) { #expect(item.catalogID == nil, "\(item.name)") }
+        #expect(r.layout.unplaced.isEmpty)
+    }
+
+    @Test func aHolidayIsReadWhateverTheModelSays() async {
+        let r = await result(bedroom, "christmas bedroom", reader: { _ in DesignBrief(roomType: "bedroom", styleWords: ["cosy"]) })
+        #expect(r.plan.style?.words.first == "christmas")
+        #expect(r.layout.placed.contains { $0.category == "bed" })
+        #expect(LayoutSolver.check(bedroom, r.layout, r.plan, catalog: catalog).isEmpty)
+    }
+
+    @Test func extrasThatDoNotFitAreLeftOutQuietly() async {
+        let tiny = CanonicalRoom.make(polygon: [Point2(0, 0), Point2(3, 0), Point2(3, 2.8), Point2(0, 2.8)])
+        let r = await result(tiny, "bedroom")
+        #expect(r.layout.unplaced.allSatisfy { id in r.plan.items.first { $0.itemID == id.itemID }.map { $0.priority < FurniturePlanner.extraPriority } ?? false })
+        #expect(r.plan.items.allSatisfy { item in item.priority < FurniturePlanner.extraPriority || r.layout.placed.contains { $0.itemID == item.itemID } })
+    }
+
+    @Test func aHolidayThemeSuggestsItsPaint() {
+        #expect(WallPaint.suggestions(for: "halloween lounge").first == Season.halloween.paint)
+        #expect(WallPaint.suggestions(for: "cosy christmas room").first == Season.christmas.paint)
+    }
+
     @Test func colourNamesArePlain() {
         #expect(RoomColours.name("#FFFFFF", surface: "") == "white")
         #expect(RoomColours.name("#F0E8D8", surface: "") == "warm off-white")

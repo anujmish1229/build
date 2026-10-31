@@ -11,8 +11,10 @@ public enum WallPaint {
         }
     }
 
-    /// Sixteen groups of looks and their paints, best first. The more distinctive looks come first.
+    /// Eighteen groups of looks and their paints, best first. The more distinctive looks come first.
     static let looks: [(words: [String], paints: [Paint])] = [
+        (Season.christmas.themeWords, [Season.christmas.paint, Paint("cranberry", "#6A2029"), Paint("cream", "#F1E8D6")]),
+        (Season.halloween.themeWords, [Season.halloween.paint, Paint("midnight navy", "#1B2236"), Paint("charcoal", "#2B2B30")]),
         (["cyberpunk", "neon", "synthwave", "futuristic", "gaming", "sci-fi", "scifi"],
          [Paint("midnight navy", "#1B2236"), Paint("blue-black", "#12141C"), Paint("deep purple", "#2E1F47")]),
         (["gothic"], [Paint("deep plum", "#3A1E2C"), Paint("charcoal", "#2B2B30"), Paint("oxblood", "#4A1518")]),

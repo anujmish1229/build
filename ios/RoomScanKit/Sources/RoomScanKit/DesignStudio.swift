@@ -104,8 +104,11 @@ public enum DesignStudio {
         return Array((walls.isEmpty ? room.walls.map(\.id) : walls).prefix(5))
     }
 
-    /// Distinct options placing at least as many pieces as the best minus one.
-    static func pick(_ candidates: [LayoutOption], count: Int) -> [LayoutOption] {
+    /// Distinct options placing at least as many pieces as the best minus one. Those where every
+    /// piece that matters fits come first, when there are any.
+    static func pick(_ all: [LayoutOption], count: Int) -> [LayoutOption] {
+        let complete = all.filter { $0.layout.unplaced.isEmpty && !$0.layout.placed.isEmpty }
+        let candidates = complete.isEmpty ? all : complete
         let best = candidates.map(\.layout.placed.count).max() ?? 0
         func positions(_ o: LayoutOption) -> Set<String> {
             Set(o.layout.placed.map { "\($0.itemID)@\(Int($0.x * 10)),\(Int($0.z * 10)),\(Int($0.rotation))" })

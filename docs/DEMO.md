@@ -14,6 +14,7 @@ The first launch is a good place to start, so delete the app first if you want a
 **No LiDAR needed**
 
 - [ ] **Board:** It shows straight away, and pictures fill in. Try the Bedroom and Japandi filters.
+- [ ] **Holidays:** Tap the Christmas and Halloween filters, or open **Holiday example room** under Rooms. Open each design, then **View in 3D and AR** and orbit.
 - [ ] **Save:** Open a design, tap **Save to a board**, and create a board.
 - [ ] **Remix:** On the same design, tap **Remix into my room** and pick a sample room. Swipe through the layouts and tap **Use this layout**.
 - [ ] **New design:** Tap the Rooms icon, then **New design** on a sample room. Type `calm japandi bedroom` and tap **Show me layouts**.

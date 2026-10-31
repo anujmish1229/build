@@ -1,11 +1,14 @@
 import Foundation
 
-/// Three rooms for trying the app without LiDAR (FR-M6, UC12).
+/// Four rooms for trying the app without LiDAR (FR-M6, UC12).
 public enum SampleRooms {
     public struct Sample: Sendable {
         public let name: String
         public let room: CanonicalRoom
     }
+
+    /// The one room furnished for both Christmas and Halloween.
+    public static let holidayRoomName = "Holiday example room"
 
     public static var all: [Sample] {
         [
@@ -28,6 +31,14 @@ public enum SampleRooms {
                     Opening(id: "d0", type: .door, wallID: "w5", offset: 0.4, width: 0.9, height: 2.03, sill: 0, swing: .unknown),
                     Opening(id: "win0", type: .window, wallID: "w1", offset: 1.1, width: 1.4, height: 1.3, sill: 0.8),
                     Opening(id: "win1", type: .window, wallID: "w4", offset: 1.0, width: 1.5, height: 1.3, sill: 0.8),
+                ])),
+            Sample(name: holidayRoomName, room: .make(
+                polygon: [Point2(0, 0), Point2(6.4, 0), Point2(6.4, 4.8), Point2(0, 4.8)], ceiling: 2.7,
+                openings: [
+                    Opening(id: "d0", type: .door, wallID: "w3", offset: 0.25, width: 0.9, height: 2.03, sill: 0, swing: .inwardLeft),
+                    Opening(id: "win0", type: .window, wallID: "w0", offset: 0.5, width: 1.2, height: 1.5, sill: 0.8),
+                    Opening(id: "win1", type: .window, wallID: "w1", offset: 1.9, width: 1.4, height: 1.5, sill: 0.8),
+                    Opening(id: "win2", type: .window, wallID: "w2", offset: 2.5, width: 1.4, height: 1.5, sill: 0.8),
                 ])),
         ]
     }
