@@ -60,6 +60,9 @@ struct ReviewView: View {
 
     private var summary: some View {
         Section {
+            ObjectSceneView(room: model.room, layout: nil, interactive: false, onTap: { _ in })
+                .frame(height: 160)
+                .accessibilityLabel("3D preview of the room")
             LabeledContent("Floor area", value: Units.area(model.room.derived.area, model.units))
             LabeledContent("Ceiling height", value: Units.format(model.room.ceilingHeight, model.units))
             Picker("Units", selection: $model.units) {

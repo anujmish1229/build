@@ -87,12 +87,16 @@ struct DesignResultSections: View {
     let layout: FurnitureLayout
     let notes: String
     let provider: String
+    @State private var viewing = false
 
     var body: some View {
         Section("Your design") {
             FurnishedPlanView(room: room, layout: layout).frame(height: 280)
             if !notes.isEmpty { Text(notes).font(.footnote) }
             Text("Furniture chosen by: \(provider)").font(.caption).foregroundStyle(.secondary)
+            Button("View in 3D and AR") { viewing = true }
+                .accessibilityIdentifier("open3D")
+                .fullScreenCover(isPresented: $viewing) { RoomViewer(room: room, layout: layout) }
         }
         Section("Pieces (\(layout.placed.count))") {
             ForEach(layout.placed) { Text($0.name ?? $0.itemID) }

@@ -10,3 +10,4 @@ One row per delivery version (requirements section 14). "Needs a person" lists d
 | 0.3 | A measured wall matches to within 1e-9 m; corrections survive one and two rescans on simulated data | Rescan a real room on a device |
 | 0.4 | 60 randomised rooms and plans never break a hard constraint, under the solver's checker and separate geometry checks; the same input gives the same layout | None |
 | 0.5 | Every room type designs legally with Apple Intelligence off; a brief has no field for a position, and junk from a stubbed model is dropped | Try a theme with Apple Intelligence on, on a supported phone |
+| 0.6 | Scene boxes match room.json; a USDZ file reloaded from disk measures the room's true size within 1 mm | Open Quick Look and AR on a phone and check the scale by eye |
