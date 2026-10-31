@@ -147,6 +147,11 @@ public enum StarterBoard {
 
     /// The file that ships with the app. Empty only if the file is missing, which a test guards against.
     public static func load() -> [DesignPackage] {
+        // Ready-made designs for a catalogue built into this copy of the app come first.
+        if let url = Bundle.main.url(forResource: "ikea-starter", withExtension: "json"),
+           let data = try? Data(contentsOf: url), let feed = try? FeedFile.read(data) {
+            return feed.designs
+        }
         guard let url = Bundle.module.url(forResource: "starter_board", withExtension: "json"),
               let data = try? Data(contentsOf: url), let feed = try? FeedFile.read(data) else { return [] }
         return feed.designs

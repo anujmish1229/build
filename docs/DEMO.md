@@ -31,7 +31,8 @@ The first launch is a good place to start, so delete the app first if you want a
 
 ## What to say if asked
 
-- The built-in furniture is invented sample data, so prices are made up and pieces have no store links. Opening a catalogue file on the phone replaces it.
+- On this phone the furniture is real IKEA products from a public snapshot, so prices may be out of date. The store link is the source of truth.
+- That snapshot has no licence, so it's for personal demos only. The public repository holds invented sample furniture instead, and a build without `catalog-local/` uses that.
 - Everything runs on the phone. The only download is a feed you add yourself.
 
 ## Not yet tried on a real phone

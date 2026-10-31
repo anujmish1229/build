@@ -102,6 +102,8 @@ Network (optional): download a board feed from an https address the user enters
 | `ios/RoomScanUITests/` | Simulator walk-through tests |
 | `ios/project.yml`, `ios/RoomScan.xcodeproj/` | XcodeGen spec and generated project |
 | `contracts/` | Example scan and furnishing stream |
+| `tools/` | IKEA dataset converter |
+| `catalog-local/` | Generated IKEA catalogue, gitignored (personal use only; see 5.4) |
 | `docs/` | Conventions, decisions, status |
 
 ## 4. Functional Requirements
@@ -219,8 +221,8 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 - **FR-C3** A catalogue shall be refused, keeping the current one, if it is unreadable or empty, has duplicate ids in a region, or a size that isn't three values each above 0 and below 20 m.
 - **FR-C4** Product links shall only be opened if they are web links.
 - **FR-C5** Catalogue order at launch: the imported file, else a catalogue built into the app, else the built-in 27.
-- **FR-C6** Catalogues from other sources stay outside the repository and the build. They reach the app only when the owner opens a file on the phone (FR-C2).
-- **FR-C7** Removed: the repository holds no converter or data for third-party catalogues.
+- **FR-C6** A build step shall copy `catalog-local/ikea-global.json` and its ready-made starter Board into the app when those files exist at build time. `catalog-local/` is gitignored and shall never be committed, because the repository is public (see 5.4).
+- **FR-C7** `tools/ikea_kaggle_to_catalog.py` shall convert the Kaggle IKEA dataset into that file. Missing sizes are filled with typical values, and the piece's note says so. The repository holds the converter, never its output.
 - **FR-C8** A product's note (sold separately, estimated size) shall be shown to the buyer on its 3D card.
 - **FR-C9** Tapping a piece or product row shall open its product page in the browser.
 

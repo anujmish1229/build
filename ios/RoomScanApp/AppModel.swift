@@ -31,6 +31,8 @@ final class AppModel: ObservableObject {
         feed = feedStore.load()
         catalogStore = CatalogStore(directory: dir)
         catalogStore.load()
+        // A large catalogue takes a moment to read, so do it away from the first screen.
+        Task.detached(priority: .utility) { _ = FurnitureCatalog.current }
         if let problem = store.problem { toast = problem }
         do {
             if !testing { try Migrations.importLegacyRoom(from: RoomStore(url: RoomStore.defaultURL), into: store) }
@@ -63,7 +65,7 @@ final class AppModel: ObservableObject {
     func resetCatalogue() {
         catalogStore.reset()
         objectWillChange.send()
-        toast = "Back to the built-in catalogue."
+        toast = "Back to the catalogue built into the app."
     }
 
     func feedExportFile() -> URL? {

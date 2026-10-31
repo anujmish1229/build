@@ -25,6 +25,17 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
         INFOPLIST_FILE: RoomScanApp/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    postCompileScripts:
+      - name: Add personal catalogue if present
+        basedOnDependencyAnalysis: false
+        script: |
+          # catalog-local/ is gitignored, so this only does anything on the owner's Mac.
+          for file in ikea-global.json ikea-starter.json; do
+            source="$SRCROOT/../catalog-local/$file"
+            target="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/$file"
+            if [ -f "$source" ]; then cp "$source" "$target"; else rm -f "$target"; fi
+          done
   RoomScanUITests:
     type: bundle.ui-testing
     platform: iOS
