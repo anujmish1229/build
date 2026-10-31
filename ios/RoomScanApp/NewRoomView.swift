@@ -11,7 +11,7 @@ struct NewRoomView: View {
     var body: some View {
         if let room = app.library.room(roomID) {
             let hasErrors = RoomValidation.hasErrors(RoomValidation.validate(room.room, units: app.units))
-            Form {
+            CardForm {
                 Section {
                     FurnishedPlanView(room: room.room, layout: nil).frame(height: 240)
                     LabeledContent("Area", value: Units.area(room.room.derived.area, app.units))
@@ -34,6 +34,7 @@ struct NewRoomView: View {
                     if hasErrors { Text("This plan has a problem. Check the floor plan to fix it.").font(.footnote).foregroundStyle(.red) }
                 }
             }
+            .nightBackground()
             .navigationTitle("Your room")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { saveName(); dismiss() } } }
             .onAppear { if name.isEmpty { name = room.name } }

@@ -15,7 +15,7 @@ struct ScanTutorialView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Before you scan").font(.largeTitle.bold())
+                Text("Before you scan").font(Editorial.title())
                 ForEach(tips, id: \.title) { tip in
                     HStack(alignment: .top, spacing: 14) {
                         Image(systemName: tip.icon).font(.title3).frame(width: 30)
@@ -30,9 +30,10 @@ struct ScanTutorialView: View {
                 Button(action: onStart) {
                     Text("Start scanning").frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent).controlSize(.large)
+                .buttonStyle(.pumpkin).controlSize(.large)
             }
             .padding()
         }
+        .nightBackground()
     }
 }

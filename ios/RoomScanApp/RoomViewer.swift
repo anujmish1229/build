@@ -76,7 +76,7 @@ struct RoomViewer: View {
                         .pickerStyle(.segmented)
                         .frame(width: 200)
                         if placed {
-                            Button("Move") { placeAgain += 1; placed = false }.buttonStyle(.bordered)
+                            Button("Move") { placeAgain += 1; placed = false }.buttonStyle(.soft)
                         }
                     }
                     .padding(.horizontal)
@@ -131,7 +131,7 @@ struct ProductCard: View {
                 Button { openURL(url) } label: {
                     Label("View in store", systemImage: "arrow.up.right.square").frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.pumpkin)
                 .padding(.top, 4)
             }
         }
@@ -156,7 +156,7 @@ struct ObjectSceneView: UIViewRepresentable {
         let view = SCNView()
         configure(view, context: context)
         view.antialiasingMode = .multisampling4X
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = UIColor(Editorial.paper)
         view.addGestureRecognizer(UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.tapped(_:))))
         return view
     }

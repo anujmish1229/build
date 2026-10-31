@@ -38,6 +38,7 @@ struct BoardView: View {
         let columns = BoardContents.columns(shown) { 1 + Double(($0.design.title.count + 3) % 4) * 0.08 }
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
+                TrickOrTreatBanner().padding(.horizontal, 10)
                 filters(all)
                 if shown.isEmpty {
                     Text("Nothing matches those filters.").foregroundStyle(.secondary).padding()
@@ -56,9 +57,15 @@ struct BoardView: View {
                 .padding(.horizontal, 10)
             }
         }
-        .background(Editorial.paper)
+        .nightBackground()
         .refreshable { if !feedAddress.isEmpty { await app.refreshFeed(feedAddress) } }
         .navigationTitle("Board")
+        .onChange(of: app.scanRequested) { requested in
+            if requested {
+                app.scanRequested = false
+                scanning = true
+            }
+        }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 NavigationLink(value: Route.rooms) { Image(systemName: "square.split.bottomrightquarter") }
@@ -116,7 +123,7 @@ struct PinCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             ZStack {
-                Color(red: 0.93, green: 0.91, blue: 0.88)
+                Editorial.card
                 if let image = pictures.images[pin.id] {
                     Image(uiImage: image).resizable().scaledToFill()
                 } else {
@@ -127,7 +134,7 @@ struct PinCard: View {
             .frame(maxWidth: .infinity)
             .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            Text(pin.design.title).font(.subheadline.weight(.medium)).lineLimit(2).foregroundStyle(Editorial.ink)
+            Text(pin.design.title).font(Editorial.title(15)).lineLimit(2).foregroundStyle(Editorial.ink)
             Text(cardLine).font(.caption).foregroundStyle(.secondary)
             Text(pin.source.label).font(.caption2).foregroundStyle(Editorial.accent)
         }
@@ -152,7 +159,7 @@ struct BoardsView: View {
     @State private var name = ""
 
     var body: some View {
-        List {
+        CardList {
             ForEach(app.library.boards) { board in
                 NavigationLink(value: Route.board(board.id)) {
                     LabeledContent(board.name, value: "\(board.pinIDs.count)")
@@ -166,6 +173,7 @@ struct BoardsView: View {
                 Text("Save a design from the Board to start a board.").foregroundStyle(.secondary)
             }
         }
+        .nightBackground()
         .navigationTitle("Boards")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -189,7 +197,7 @@ struct SavedBoardView: View {
 
     var body: some View {
         if let board = app.library.boards.first(where: { $0.id == boardID }) {
-            List {
+            CardList {
                 ForEach(board.pinIDs, id: \.self) { id in
                     if let pin = app.pin(id) {
                         NavigationLink(value: Route.pin(pin)) { Text(pin.design.title) }
@@ -201,6 +209,7 @@ struct SavedBoardView: View {
                 }
                 if board.pinIDs.isEmpty { Text("Nothing saved here yet.").foregroundStyle(.secondary) }
             }
+            .nightBackground()
             .navigationTitle(board.name)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {

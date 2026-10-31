@@ -75,6 +75,19 @@ final class FlowTests: XCTestCase {
         XCTAssertTrue(app.buttons["Undo that change"].waitForExistence(timeout: 10), "The typed change wasn't applied")
     }
 
+    func testWelcomeLeadsToTheBoardAndToScanning() {
+        app.terminate()
+        app.launchArguments = ["-uiTesting", "-showWelcome"]
+        app.launch()
+        tap("welcomeExplore")
+        XCTAssertTrue(element("pin-starter-1").waitForExistence(timeout: 5), "Explore didn't lead to the Board")
+
+        app.terminate()
+        app.launch()
+        tap("welcomeScan")
+        XCTAssertTrue(element("scanUnsupported").waitForExistence(timeout: 5), "Scan a room didn't start a scan")
+    }
+
     func testScanningExplainsItselfInTheSimulator() {
         tap("goScan")
         XCTAssertTrue(element("scanUnsupported").waitForExistence(timeout: 5))

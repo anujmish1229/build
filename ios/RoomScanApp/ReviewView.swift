@@ -16,7 +16,7 @@ struct ReviewView: View {
         VStack(spacing: 0) {
             FloorPlanView(model: model, selection: $selection)
                 .frame(height: 320)
-            List {
+            CardList {
                 summary
                 if !model.generalIssues.isEmpty {
                     Section("Check these") { ForEach(model.generalIssues) { IssueRow(issue: $0) } }
@@ -26,6 +26,7 @@ struct ReviewView: View {
             }
             .listStyle(.insetGrouped)
         }
+        .nightBackground()
         .navigationTitle("Floor plan")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

@@ -21,10 +21,12 @@ struct ScanView: View {
         case .unsupported(let reason):
             VStack(spacing: 16) {
                 Image(systemName: "sensor.tag.radiowaves.forward").font(.largeTitle)
-                Text("Scanning isn't available").font(.title2.bold())
+                Text("Scanning isn't available").font(Editorial.title(26))
                 Text(reason).multilineTextAlignment(.center).foregroundStyle(.secondary)
             }
             .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .nightBackground()
             .accessibilityIdentifier("scanUnsupported")
         case .supported:
             content
@@ -52,8 +54,11 @@ struct ScanView: View {
             VStack(spacing: 16) {
                 Image(systemName: "exclamationmark.triangle").font(.largeTitle)
                 Text(message).multilineTextAlignment(.center)
-                Button("Scan again") { stage = .tutorial }.buttonStyle(.borderedProminent)
-            }.padding()
+                Button("Scan again") { stage = .tutorial }.buttonStyle(.pumpkin)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .nightBackground()
         }
     }
 }
@@ -67,10 +72,10 @@ struct ScanResultView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("Found \(raw.summary)").font(.title3.bold()).multilineTextAlignment(.center)
+            Text("Found \(raw.summary)").font(Editorial.title(24)).multilineTextAlignment(.center)
             ScanSketchView(review: ScanReview(raw: raw)).frame(height: 240)
             Button(action: onContinue) { Text(continueTitle).frame(maxWidth: .infinity) }
-                .buttonStyle(.borderedProminent).controlSize(.large)
+                .buttonStyle(.pumpkin).controlSize(.large)
             Button("Scan again", action: onRescan)
             if let data = try? raw.encoded() {
                 ShareLink("Export JSON", item: RawScanFile(data: data), preview: SharePreview("Raw scan"))
@@ -78,6 +83,8 @@ struct ScanResultView: View {
             }
         }
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .nightBackground()
     }
 }
 
@@ -129,7 +136,7 @@ private struct CaptureScreen: View {
                 .ignoresSafeArea()
             if !stopRequested {
                 Button("Done") { stopRequested = true }
-                    .buttonStyle(.borderedProminent).controlSize(.large).padding(.bottom, 32)
+                    .buttonStyle(.pumpkin).controlSize(.large).padding(.bottom, 32)
             }
         }
     }

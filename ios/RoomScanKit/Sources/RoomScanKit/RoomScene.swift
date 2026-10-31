@@ -55,7 +55,7 @@ public enum RoomScene {
     public static func snapshot(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours? = nil, wallPaint: String? = nil,
                                 size: CGSize = CGSize(width: 720, height: 900)) -> CGImage? {
         let scene = make(room, layout, colours: colours, wallPaint: wallPaint)
-        scene.background.contents = CGColor(srgbRed: 0.93, green: 0.91, blue: 0.88, alpha: 1)
+        scene.background.contents = CGColor(srgbRed: 0.118, green: 0.161, blue: 0.208, alpha: 1)
         let b = room.derived.bounds
         let span = max(b.width, b.depth, 2)
         let eye = Point2(b.centre.x, b.centre.z + span * 0.95)

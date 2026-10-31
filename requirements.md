@@ -248,7 +248,7 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 
 ### 4.15 App shell (FR-U)
 - **FR-U1** The Board shall be home, with one-tap access to Rooms, Boards, Scan and Settings.
-- **FR-U2** The app shall use one light, editorial look regardless of the device's appearance setting.
+- **FR-U2** The app shall use one dark "Haunted Edition" look regardless of the device's appearance setting.
 - **FR-U3** It shall run in portrait on iPhone, and in all orientations on iPad.
 
 ## 5. Non-Functional Requirements

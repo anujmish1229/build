@@ -18,7 +18,7 @@ struct WallLengthSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            CardForm {
                 Section {
                     TextField("For example 3.45, 345 cm or 11 ft 4 in", text: $text)
                         .keyboardType(.numbersAndPunctuation)
@@ -42,6 +42,7 @@ struct WallLengthSheet: View {
                 }
                 previewSection
             }
+            .nightBackground()
             .navigationTitle("Measure this wall")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -47,7 +47,9 @@
 			<dict><key>public.filename-extension</key><array><string>roomdesign</string></array></dict>
 		</dict>
 	</array>
-	<key>UILaunchScreen</key><dict/>
+	<key>UILaunchScreen</key><dict><key>UIColorName</key><string>LaunchNight</string></dict>
+	<key>UIAppFonts</key><array><string>DenkOne-Regular.ttf</string></array>
+	<key>UIUserInterfaceStyle</key><string>Dark</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key><true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array><string>UIInterfaceOrientationPortrait</string></array>

@@ -48,12 +48,13 @@ struct LayoutPickerView: View {
                     } label: {
                         Text("Use this layout").frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent).controlSize(.large)
+                    .buttonStyle(.pumpkin).controlSize(.large)
                     .accessibilityIdentifier("useLayout")
                 }
                 .padding()
             }
         }
+        .nightBackground()
         .navigationTitle("Choose a layout")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -7,6 +7,10 @@ final class AppModel: ObservableObject {
     @Published private(set) var library = Library()
     @Published var toast: String?
     @Published var path = NavigationPath()
+    /// False while the Welcome screen is up. Walk-through tests go straight in unless they are testing it.
+    @Published var entered = ProcessInfo.processInfo.arguments.contains("-uiTesting") && !ProcessInfo.processInfo.arguments.contains("-showWelcome")
+    /// Set by Welcome's scan button; the Board then starts the scan.
+    @Published var scanRequested = false
     @Published private(set) var feed: FeedFile?
     let starter = StarterBoard.load()
     private let feedStore: FeedStore
@@ -122,6 +126,7 @@ final class AppModel: ObservableObject {
 
     /// Opens a file from outside or from Rooms, then goes to what it added (FR-H3).
     func open(_ url: URL) {
+        entered = true
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         do {
