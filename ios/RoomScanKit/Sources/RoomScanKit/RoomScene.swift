@@ -27,8 +27,9 @@ public enum RoomScene {
     }
 
     /// The scene, everything under one "room" node. `cutaway` draws the walls only that tall, like a doll's house.
-    public static func make(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours? = nil,
-                            wallPaint: String? = nil, cutaway: Double? = nil) -> SCNScene {
+    public static func make(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours? = nil, wallPaint: String? = nil,
+                            cutaway: Double? = nil, products: [CatalogEntry] = [], style: DesignStyle? = nil,
+                            catalog: FurnitureCatalog = .current) -> SCNScene {
         let scene = SCNScene()
         let root = SCNNode()
         root.name = "room"
@@ -37,24 +38,28 @@ public enum RoomScene {
         if let wallPaint { paint.wall = wallPaint }
         root.addChildNode(floor(room, paint))
         for node in walls(room, paint, cutaway: cutaway) { root.addChildNode(node) }
-        for placed in layout?.placed ?? [] { root.addChildNode(furniture(placed)) }
+        let known = FurnitureCatalog(entries: products).merged(with: catalog)
+        for placed in layout?.placed ?? [] {
+            root.addChildNode(furniture(placed, entry: known.entry(placed.catalogID), style: style))
+        }
         return scene
     }
 
     /// The scene as a USDZ file (FR-O8). Returns the file's address, or nil if it couldn't be written.
     public static func writeUSDZ(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours? = nil,
-                                 wallPaint: String? = nil, name: String = "room") -> URL? {
+                                 wallPaint: String? = nil, products: [CatalogEntry] = [], style: DesignStyle? = nil, name: String = "room") -> URL? {
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         guard (try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)) != nil else { return nil }
         let url = dir.appendingPathComponent("\(name).usdz")
-        let scene = make(room, layout, colours: colours, wallPaint: wallPaint)
+        let scene = make(room, layout, colours: colours, wallPaint: wallPaint, products: products, style: style)
         return scene.write(to: url, options: nil, delegate: nil, progressHandler: nil) ? url : nil
     }
 
     /// A still picture from above and in front, leaving out the walls nearest the camera (FR-O7).
     public static func snapshot(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours? = nil, wallPaint: String? = nil,
+                                products: [CatalogEntry] = [], style: DesignStyle? = nil,
                                 size: CGSize = CGSize(width: 720, height: 900)) -> CGImage? {
-        let scene = make(room, layout, colours: colours, wallPaint: wallPaint)
+        let scene = make(room, layout, colours: colours, wallPaint: wallPaint, products: products, style: style)
         scene.background.contents = CGColor(srgbRed: 0.93, green: 0.91, blue: 0.88, alpha: 1)
         let b = room.derived.bounds
         let span = max(b.width, b.depth, 2)
@@ -163,17 +168,16 @@ public enum RoomScene {
         return out
     }
 
-    /// A simple box at the piece's real size. Its origin is the middle of its footprint on the floor.
-    static func furniture(_ p: FurnitureLayout.Placed) -> SCNNode {
-        let w = p.footprint.first ?? 0.1, d = p.footprint.count > 1 ? p.footprint[1] : 0.1, h = p.height ?? 0.5
-        let holder = SCNNode()
+    /// A piece drawn at its real size in a form that suits it. Its origin is the middle of its footprint on the floor.
+    static func furniture(_ p: FurnitureLayout.Placed, entry: CatalogEntry? = nil, style: DesignStyle? = nil) -> SCNNode {
+        let category = entry?.category ?? p.category ?? ""
+        let look = ResolvedLook(entry: entry, name: entry?.name ?? p.name ?? "", category: category, style: style)
+        let builder = FurnitureBuilder(w: p.footprint.first ?? 0.1, d: p.footprint.count > 1 ? p.footprint[1] : 0.1, h: p.height ?? 0.5,
+                                       category: category, look: look, rugReach: entry?.clearance.front ?? 0)
+        let holder = builder.build()
         holder.name = itemPrefix + p.itemID
         holder.position = SCNVector3(Float(p.x), 0, Float(p.z))
         holder.eulerAngles = SCNVector3(0, Float(p.rotation * .pi / 180), 0)
-        let body = box(w, h, d, material(CGColor(srgbRed: 0.6, green: 0.47, blue: 0.34, alpha: 1)))
-        body.position = SCNVector3(0, Float(h / 2), 0)
-        body.name = "body"
-        holder.addChildNode(body)
         return holder
     }
 

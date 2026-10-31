@@ -100,8 +100,6 @@ Network (optional): download a board feed from an https address the user enters
 | `ios/RoomScanUITests/` | Simulator walk-through tests |
 | `ios/project.yml`, `ios/RoomScan.xcodeproj/` | XcodeGen spec and generated project |
 | `contracts/` | Example scan and furnishing stream |
-| `tools/` | IKEA dataset converter |
-| `catalog-local/` | Generated IKEA catalogue (personal use only; see 5.4) |
 | `docs/` | Conventions, decisions, status |
 
 ## 4. Functional Requirements
@@ -214,13 +212,13 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 - **FR-H7** The user shall be able to export all their designs as `board-feed.json`, to host elsewhere.
 
 ### 4.11 Catalogue (FR-C)
-- **FR-C1** The app shall ship with a built-in catalogue of 27 real products from IKEA Canada and Structube, with sizes, CAD prices and product links checked on 2026-10-29.
+- **FR-C1** The app shall ship with a built-in catalogue of 27 original sample pieces with invented names and typical sizes and prices. They are not products of any retailer and have no store links.
 - **FR-C2** The user shall be able to replace it by opening a catalogue file (Rooms → + → Open, or AirDrop). The imported file is kept and used from then on.
 - **FR-C3** A catalogue shall be refused, keeping the current one, if it is unreadable or empty, has duplicate ids in a region, or a size that isn't three values each above 0 and below 20 m.
 - **FR-C4** Product links shall only be opened if they are web links.
 - **FR-C5** Catalogue order at launch: the imported file, else a catalogue built into the app, else the built-in 27.
-- **FR-C6** A build step shall copy `catalog-local/ikea-global.json` into the app when that file exists at build time. It holds 3,837 pieces with prices in 46 countries (see 5.4).
-- **FR-C7** `tools/ikea_kaggle_to_catalog.py` shall convert the Kaggle IKEA dataset into that file. Missing sizes are filled with typical values, and the piece's note says so.
+- **FR-C6** Catalogues from other sources stay outside the repository and the build. They reach the app only when the owner opens a file on the phone (FR-C2).
+- **FR-C7** Removed: the repository holds no converter or data for third-party catalogues.
 - **FR-C8** A product's note (sold separately, estimated size) shall be shown to the buyer on its 3D card.
 - **FR-C9** Tapping a piece or product row shall open its product page in the browser.
 
@@ -228,7 +226,7 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 - **FR-Z1** The user's region shall default to the device's region, and can be changed to any region the catalogue covers.
 - **FR-Z2** The user shall be able to show furniture from their region, any set of regions, or every region. A piece sold in several is shown at its cheapest, compared in US dollars.
 - **FR-Z3** If the chosen regions have no furniture, the US's is used, else the first available, and Settings says so.
-- **FR-Z4** Prices shall be shown in each store's currency or in any of 34 currencies, converted at rates bundled with the app (`Prices.ratesDate`, 2026-10-29). A converted price is marked `≈` with the store's own price beneath it, and Settings says conversions are approximate.
+- **FR-Z4** Prices shall be shown in each store's currency or in any of 34 currencies, converted at rates bundled with the app (`Prices.ratesDate`, 2026-10-30). A converted price is marked `≈` with the store's own price beneath it, and Settings says conversions are approximate.
 - **FR-Z5** Totals in mixed currencies shall be added up in the shown currency, else the home region's. Currencies shall use their own decimals and symbols.
 
 ### 4.13 3D, AR and pictures (FR-O)
@@ -434,7 +432,7 @@ Colours are `{"wall": "#RRGGBB", "floor": "#RRGGBB", "floorType": "wood", "detec
 | Room, raw scan | `schema_version` | 1 |
 | Catalogue | `catalog_version` | 2 (built-in), 3 (multi-region) |
 | Share files, board feed | `version` | 1 |
-| Exchange rates | `Prices.ratesDate` | 2026-10-29 |
+| Exchange rates | `Prices.ratesDate` | 2026-10-30 |
 
 ## 7. Key Algorithms
 

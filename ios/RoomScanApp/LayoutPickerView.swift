@@ -17,7 +17,7 @@ struct LayoutPickerView: View {
         VStack(spacing: 0) {
             TabView(selection: $index) {
                 ForEach(options.indices, id: \.self) { i in
-                    ObjectSceneView(room: room, layout: options[i].layout, colours: colours, wallPaint: wallPaint?.hex, interactive: false, onTap: { _ in })
+                    ObjectSceneView(room: room, layout: options[i].layout, colours: colours, wallPaint: wallPaint?.hex, products: options[i].products, style: options[i].plan.style, interactive: false, onTap: { _ in })
                         .tag(i)
                 }
             }
@@ -60,8 +60,7 @@ struct LayoutPickerView: View {
 
     private var pieceLine: String {
         let count = option.layout.placed.count
-        let total = option.placedProducts.compactMap(\.price).reduce(0, +)
-        let currency = option.placedProducts.first?.currency ?? ""
-        return "\(count) piece\(count == 1 ? "" : "s")" + (total > 0 ? ", about $\(Int(total)) \(currency)" : "")
+        let total = Prices.totalText(option.placedProducts, home: Prices.homeCurrency).map { ", \($0)" } ?? ""
+        return "\(count) piece\(count == 1 ? "" : "s")\(total)"
     }
 }

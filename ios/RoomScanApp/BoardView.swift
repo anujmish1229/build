@@ -12,7 +12,7 @@ final class PinPictures: ObservableObject {
         guard images[pin.id] == nil, pending.insert(pin.id).inserted else { return }
         let design = pin.design
         Task.detached(priority: .utility) {
-            let image = RoomScene.snapshot(design.room, design.layout, colours: design.colours, size: CGSize(width: 480, height: 600)).map { UIImage(cgImage: $0) }
+            let image = RoomScene.snapshot(design.room, design.layout, colours: design.colours, products: design.products, style: design.plan.style, size: CGSize(width: 480, height: 600)).map { UIImage(cgImage: $0) }
             await MainActor.run {
                 if let image { self.images[pin.id] = image }
             }
@@ -67,6 +67,8 @@ struct BoardView: View {
                     .accessibilityLabel("Boards").accessibilityIdentifier("goBoards")
                 Button { scanning = true } label: { Image(systemName: "camera.metering.matrix") }
                     .accessibilityLabel("Scan").accessibilityIdentifier("goScan")
+                NavigationLink(value: Route.settings) { Image(systemName: "gearshape") }
+                    .accessibilityLabel("Settings").accessibilityIdentifier("goSettings")
             }
         }
         .sheet(isPresented: $scanning) {
@@ -115,18 +117,18 @@ struct PinCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            ZStack {
-                Color(red: 0.93, green: 0.91, blue: 0.88)
-                if let image = pictures.images[pin.id] {
-                    Image(uiImage: image).resizable().scaledToFill()
-                } else {
-                    FurnishedPlanView(room: pin.design.room, layout: pin.design.layout).padding(8)
+            // The colour sets the card's width, so a picture can't push its column wider.
+            Color(red: 0.93, green: 0.91, blue: 0.88)
+                .frame(height: height)
+                .frame(maxWidth: .infinity)
+                .overlay {
+                    if let image = pictures.images[pin.id] {
+                        Image(uiImage: image).resizable().scaledToFill()
+                    } else {
+                        FurnishedPlanView(room: pin.design.room, layout: pin.design.layout).padding(8)
+                    }
                 }
-            }
-            .frame(height: height)
-            .frame(maxWidth: .infinity)
-            .clipped()
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             Text(pin.design.title).font(.subheadline.weight(.medium)).lineLimit(2).foregroundStyle(Editorial.ink)
             Text(cardLine).font(.caption).foregroundStyle(.secondary)
             Text(pin.source.label).font(.caption2).foregroundStyle(Editorial.accent)
@@ -138,10 +140,9 @@ struct PinCard: View {
     }
 
     private var cardLine: String {
-        let products = pin.design.placedProducts
-        let total = products.compactMap(\.price).reduce(0, +)
+        let total = Prices.totalText(pin.design.placedProducts, home: Prices.homeCurrency).map { ", \($0)" } ?? ""
         let count = pin.design.layout.placed.count
-        return "\(count) piece\(count == 1 ? "" : "s")" + (total > 0 ? ", about $\(Int(total)) \(products.first?.currency ?? "")" : "")
+        return "\(count) piece\(count == 1 ? "" : "s")\(total)"
     }
 }
 

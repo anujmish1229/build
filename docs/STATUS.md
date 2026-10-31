@@ -13,3 +13,4 @@ One row per delivery version (requirements section 14). "Needs a person" lists d
 | 0.6 | Scene boxes match room.json; a USDZ file reloaded from disk measures the room's true size within 1 mm | Open Quick Look and AR on a phone and check the scale by eye |
 | 0.7 | Library, share files, typed changes and paint tested; older-format library and share files load; a damaged or newer library is kept, not overwritten | Send a file to a second phone and open it |
 | 0.8 | The ready-made Board loads with no solving, and a test keeps it in step with the planner; remixes fit their target room; simulator walk-throughs | Try the flow on the phone |
+| 0.9 | Every sample product in 14 looks stays inside its stated size; five looks render non-blank pictures; prices, regions and catalogue import tested | The built-in pieces are invented samples, not real products. A real catalogue can be opened as a file on the phone |
