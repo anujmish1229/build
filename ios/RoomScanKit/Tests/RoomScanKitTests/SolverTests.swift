@@ -63,6 +63,7 @@ private func randomPlan(_ dice: inout Dice, room: CanonicalRoom, catalog: Furnit
     /// Checks that don't share the solver's geometry code, so a bug there can't hide itself.
     private func independentViolations(_ room: CanonicalRoom, _ layout: FurnitureLayout, _ plan: FurniturePlan) -> [String] {
         var out: [String] = []
+        func hangs(_ p: FurnitureLayout.Placed) -> Bool { ["poster", "neon_sign", "string_lights", "led_strip"].contains(p.category ?? "") }
         let rects = layout.placed.map { OrientedRect(centre: Point2($0.x, $0.z), width: $0.footprint[0], depth: $0.footprint[1], rotation: $0.rotation) }
         for (p, rect) in zip(layout.placed, rects) {
             for corner in rect.corners {
@@ -77,11 +78,12 @@ private func randomPlan(_ dice: inout Dice, room: CanonicalRoom, catalog: Furnit
             for (o, zone) in PlanGeometry.keepClearZones(room) where rect.overlaps(zone) { out.append("\(p.itemID) in door zone \(o.id)") }
             for o in room.openings where o.type == .window {
                 guard let w = room.wall(o.wallID) else { continue }
-                if (p.height ?? 0) > o.sill + 0.05, rect.overlaps(PlanGeometry.windowZone(o, wall: w)) { out.append("\(p.itemID) tall at \(o.id)") }
+                if (p.height ?? 0) > o.sill + 0.05 || hangs(p), rect.overlaps(PlanGeometry.windowZone(o, wall: w)) { out.append("\(p.itemID) tall at \(o.id)") }
             }
         }
         for i in rects.indices {
-            for j in rects.indices where j > i && rects[i].overlaps(rects[j], tolerance: 1e-4) {
+            // A piece on the floor and one hanging above it are at different heights.
+            for j in rects.indices where j > i && hangs(layout.placed[i]) == hangs(layout.placed[j]) && rects[i].overlaps(rects[j], tolerance: 1e-4) {
                 out.append("\(layout.placed[i].itemID) overlaps \(layout.placed[j].itemID)")
             }
         }
@@ -233,7 +235,8 @@ private func randomPlan(_ dice: inout Dice, room: CanonicalRoom, catalog: Furnit
 @Suite struct CatalogTests {
     @Test func builtInCatalogueIsValidAndCoversEveryCategory() {
         let c = FurnitureCatalog.bundled
-        #expect(c.entries.count == 27)
+        #expect(c.entries.filter { !$0.isProp }.count == 27)
+        #expect(c.props.count == 56)
         let categories = Set(c.entries.map(\.category))
         for needed in ["bed", "nightstand", "desk", "chair", "wardrobe", "dresser", "bookshelf", "storage", "sofa", "armchair",
                        "coffee_table", "tv_stand", "side_table", "lamp", "plant", "dining_table", "bench"] {
@@ -242,10 +245,14 @@ private func randomPlan(_ dice: inout Dice, room: CanonicalRoom, catalog: Furnit
     }
 
     @Test func builtInCatalogueNamesNoRetailer() throws {
-        for e in FurnitureCatalog.bundled.entries {
+        for e in FurnitureCatalog.bundled.entries where !e.isProp {
             #expect(e.catalogID.hasPrefix("sample_"))
             #expect(e.store == "RoomScan Samples")
             #expect(e.url == nil)
+        }
+        // Props have no store or link of their own. Some name shops that stock them.
+        for e in FurnitureCatalog.bundled.props {
+            #expect(e.store == nil && e.url == nil, "\(e.catalogID)")
         }
     }
 

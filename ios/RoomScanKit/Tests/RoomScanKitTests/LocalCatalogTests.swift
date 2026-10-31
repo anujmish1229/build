@@ -36,8 +36,8 @@ import Testing
             }
         }
 
-        let starter = await StarterBoard.generate(catalog: catalog)
-        #expect(starter.designs.count == 8)
+        let starter = await StarterBoard.generate(catalog: catalog.merged(with: FurnitureCatalog.halloweenProps))
+        #expect(starter.designs.count == StarterBoard.recipes.count)
         for d in starter.designs {
             #expect(LayoutSolver.check(d.room, d.layout, d.plan, catalog: FurnitureCatalog(entries: d.products)).isEmpty, "\(d.title)")
         }

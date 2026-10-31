@@ -54,6 +54,53 @@ private func sampleOption(_ theme: String = "bedroom", room: CanonicalRoom = Sam
         #expect(names.contains { $0.contains("damaged") })
     }
 
+    @Test func sampleRoomsComeFurnished() throws {
+        let store = LibraryStore(directory: tempDir())
+        try store.addSamples()
+        let library = store.current
+        for room in library.rooms { #expect(!library.designs(for: room.id).isEmpty, "\(room.name) is empty") }
+        for design in library.designs {
+            let room = try #require(library.room(design.roomID))
+            #expect(LayoutSolver.check(room.room, design.layout, design.plan, catalog: FurnitureCatalog(entries: design.products)).isEmpty, "\(design.name)")
+        }
+    }
+
+    @Test func theHolidayRoomHasBothHolidaysInItsOwnColours() throws {
+        let store = LibraryStore(directory: tempDir())
+        try store.addSamples()
+        let room = try #require(store.current.rooms.first { $0.name == SampleRooms.holidayRoomName })
+        let designs = store.current.designs(for: room.id)
+        #expect(Set(designs.compactMap { Season.of(style: $0.plan.style) }) == [.christmas, .halloween])
+        #expect(Set(designs.compactMap(\.wallPaint?.hex)) == [Season.christmas.paint.hex, Season.halloween.paint.hex])
+    }
+
+    @Test func anEarlierLibraryGetsItsExamplesOnceAndKeepsItsOwnWork() async throws {
+        let dir = tempDir()
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        // A library from before the sample rooms came furnished: one sample untouched, one with the user's design.
+        var old = Library()
+        old.samplesAdded = true
+        let bare = SavedRoom(name: "Sample bedroom", room: SampleRooms.all[0].room)
+        let used = SavedRoom(name: "Sample living room", room: SampleRooms.all[1].room)
+        old.rooms = [bare, used]
+        let option = await sampleOption("living room", room: used.room)
+        old.designs = [SavedDesign(option: option, roomID: used.id, name: "Mine", theme: "t")]
+        try LibraryStore.encoder.encode(old).write(to: dir.appendingPathComponent("library.json"))
+
+        let store = LibraryStore(directory: dir)
+        try store.addSamplesIfNeeded()
+        #expect(!store.current.designs(for: bare.id).isEmpty)
+        #expect(store.current.designs(for: used.id).map(\.name) == ["Mine"])
+        #expect(store.current.rooms.contains { $0.name == SampleRooms.holidayRoomName })
+
+        // It happens once, even after the user deletes the room.
+        let holiday = try #require(store.current.rooms.first { $0.name == SampleRooms.holidayRoomName })
+        try store.deleteRoom(holiday.id)
+        let reopened = LibraryStore(directory: dir)
+        try reopened.addSamplesIfNeeded()
+        #expect(!reopened.current.rooms.contains { $0.name == SampleRooms.holidayRoomName })
+    }
+
     @Test func deletingARoomRemovesItsDesigns() async throws {
         let store = LibraryStore(directory: tempDir())
         let room = try store.addRoom(SavedRoom(name: "R", room: SampleRooms.all[0].room))
@@ -67,15 +114,15 @@ private func sampleOption(_ theme: String = "bedroom", room: CanonicalRoom = Sam
         let dir = tempDir()
         let store = LibraryStore(directory: dir)
         try store.addSamplesIfNeeded()
-        #expect(store.current.rooms.count == 3)
+        #expect(store.current.rooms.count == SampleRooms.all.count)
         try store.addSamplesIfNeeded()
-        #expect(store.current.rooms.count == 3)
+        #expect(store.current.rooms.count == SampleRooms.all.count)
         try store.deleteAll()
         let reopened = LibraryStore(directory: dir)
         try reopened.addSamplesIfNeeded()
         #expect(reopened.current.rooms.isEmpty)
         try reopened.addSamples()
-        #expect(reopened.current.rooms.count == 3)
+        #expect(reopened.current.rooms.count == SampleRooms.all.count)
     }
 
     @Test func boardsKeepACopyOfThePin() async throws {
@@ -295,7 +342,7 @@ private func sampleOption(_ theme: String = "bedroom", room: CanonicalRoom = Sam
 
 @Suite struct PaintTests {
     @Test func looksAndClashes() {
-        #expect(WallPaint.looks.count == 16)
+        #expect(WallPaint.looks.count == 18)
         #expect(WallPaint.suggestions(for: "cyberpunk den").map(\.name) == ["midnight navy", "blue-black", "deep purple"])
         #expect(WallPaint.suggestions(for: "somewhere to sit").isEmpty)
         #expect(WallPaint.clashes("#FF4FA8", theme: "cyberpunk den"))

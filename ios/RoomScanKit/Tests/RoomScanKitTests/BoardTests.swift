@@ -12,7 +12,7 @@ import Testing
             try generated.encoded().write(to: URL(fileURLWithPath: path))
         }
         let shipped = StarterBoard.load()
-        #expect(shipped.count == 8)
+        #expect(shipped.count == StarterBoard.recipes.count)
         #expect(shipped == generated.designs)
     }
 
@@ -55,9 +55,23 @@ import Testing
         #expect(pins.map(\.id).filter { $0 == "starter-1" }.count == 1)
     }
 
+    @Test func readyMadeDesignsInSampleRoomsAppearOnceUntilChanged() throws {
+        let store = LibraryStore(directory: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString))
+        try store.addSamples()
+        let starter = StarterBoard.load()
+        let pins = BoardContents.pins(library: store.current, feed: nil, starter: starter)
+        #expect(pins.count == starter.count)
+        #expect(pins.allSatisfy { $0.source == .starter })
+        #expect(BoardContents.exportFeed(store.current).designs.isEmpty)
+        // Once it's been changed, it's the user's own.
+        let first = try #require(store.current.designs.first)
+        try store.updateDesign(first.id) { $0.exampleOf = nil }
+        #expect(BoardContents.minePins(store.current).map(\.id) == [first.id.uuidString])
+    }
+
     @Test func filtersCombine() {
         let pins = StarterBoard.load().map { BoardPin(id: $0.id, source: .starter, design: $0) }
-        #expect(BoardContents.filtered(pins, .init()).count == 8)
+        #expect(BoardContents.filtered(pins, .init()).count == StarterBoard.recipes.count)
         #expect(BoardContents.filtered(pins, .init(source: .shared)).isEmpty)
         let bedrooms = BoardContents.filtered(pins, .init(roomType: "bedroom"))
         #expect(!bedrooms.isEmpty && bedrooms.allSatisfy { $0.design.roomType == "bedroom" })
@@ -71,7 +85,7 @@ import Testing
         #expect(columns[1] == [1.0, 1.0, 1.0])
     }
 
-    @Test(arguments: 0..<8)
+    @Test(arguments: 0..<StarterBoard.recipes.count)
     func aRemixFitsTheTargetRoom(_ index: Int) {
         let design = StarterBoard.load()[index]
         for sample in SampleRooms.all {
@@ -87,7 +101,7 @@ import Testing
     }
 
     @Test func aRemixKeepsProductsThisCatalogueDoesNotHave() throws {
-        var design = StarterBoard.load()[0]
+        var design = try #require(StarterBoard.load().first { $0.roomType == "bedroom" })
         let bed = try #require(design.plan.items.firstIndex { $0.category == "bed" })
         let foreign = CatalogEntry(catalogID: "foreign_bed", name: "Foreign bed", category: "bed", size: [1.4, 2.0, 0.9], store: "Elsewhere", price: 500, currency: "EUR")
         design.plan.items[bed].catalogID = foreign.catalogID

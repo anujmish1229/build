@@ -56,6 +56,76 @@ import Testing
         }
     }
 
+    @Test func aFurnishedRoomIsDressedAndABareOneIsNot() async throws {
+        let layout = await layout()
+        let dressed = RoomScene.make(sample.room, layout, catalog: .bundled)
+        #expect(dressed.rootNode.childNode(withName: "dressing", recursively: true) != nil)
+        #expect(!nodes(dressed, prefix: "rug").isEmpty)
+        #expect(!nodes(dressed, prefix: RoomScene.wallPartPrefix).isEmpty)
+        #expect(RoomScene.make(sample.room, nil).rootNode.childNode(withName: "dressing", recursively: true) == nil)
+    }
+
+    @Test func nothingOnTheWallFloatsAboveACutaway() async throws {
+        let layout = await layout()
+        let scene = RoomScene.make(sample.room, layout, cutaway: 1.1, catalog: .bundled)
+        let dressing = try #require(scene.rootNode.childNode(withName: "dressing", recursively: true))
+        #expect(dressing.childNodes.allSatisfy { !($0.name ?? "").hasPrefix(RoomScene.wallPartPrefix) })
+    }
+
+    @Test(arguments: StarterBoard.load())
+    func dressingStaysInTheRoom(_ d: DesignPackage) throws {
+        let b = d.room.derived.bounds, t = RoomScene.wallThickness + 0.001
+        let scene = RoomScene.make(d.room, d.layout, colours: d.colours, products: d.products, style: d.plan.style, catalog: FurnitureCatalog(entries: d.products))
+        let dressing = try #require(scene.rootNode.childNode(withName: "dressing", recursively: true))
+        let (lo, hi) = dressing.boundingBox
+        #expect(Double(lo.x) >= b.minX - t && Double(hi.x) <= b.minX + b.width + t, "\(d.title): x \(lo.x) to \(hi.x)")
+        #expect(Double(lo.z) >= b.minZ - t && Double(hi.z) <= b.minZ + b.depth + t, "\(d.title): z \(lo.z) to \(hi.z)")
+        #expect(Double(lo.y) >= -0.001 && Double(hi.y) <= d.room.ceilingHeight + 0.001, "\(d.title): y \(lo.y) to \(hi.y)")
+    }
+
+    @Test(arguments: StarterBoard.load())
+    func floorTouchesKeepClearOfPiecesAndDoors(_ d: DesignPackage) {
+        let blocked = RoomDressing.blockedShapes(d.room, d.layout)
+        for spot in RoomDressing.wallSpots(room: d.room, layout: d.layout, size: 0.36) {
+            let shape = RoomDressing.square(spot, 0.36)
+            #expect(!blocked.contains { Shape.intersects($0, shape) }, "\(d.title)")
+            #expect(Shape.covers(d.room.floorPolygon, shape), "\(d.title)")
+        }
+    }
+
+    @Test func aHiddenWallTakesWhatsOnItAlong() throws {
+        let d = try #require(StarterBoard.load().first { $0.id == "starter-christmas" })
+        let scene = RoomScene.make(d.room, d.layout, colours: d.colours, products: d.products, style: d.plan.style)
+        let parts = RoomScene.wallParts(in: scene.rootNode)
+        // From beyond w0 (the z = 0 side), that wall hides and the one opposite stays.
+        RoomScene.hideWalls(parts, room: d.room, from: Point2(3.2, -6))
+        #expect(parts.filter { $0.name == "wall:w0" || $0.name == RoomScene.wallPartPrefix + "w0" }.allSatisfy { $0.isHidden })
+        #expect(parts.filter { $0.name == "wall:w2" }.allSatisfy { !$0.isHidden })
+    }
+
+    @Test func whatHangsOnAWallHidesWithItAndStaysTappable() throws {
+        let d = try #require(StarterBoard.load().first { $0.id == "starter-halloween" })
+        let scene = RoomScene.make(d.room, d.layout, colours: d.colours, products: d.products, style: d.plan.style)
+        let poster = try #require(d.layout.placed.first { FurnitureCatalog.wallMounted.contains($0.category ?? "") })
+        let node = try #require(scene.rootNode.childNode(withName: RoomScene.itemPrefix + poster.itemID, recursively: true))
+        #expect(node.parent?.name?.hasPrefix(RoomScene.wallPartPrefix) == true)
+        #expect(RoomScene.itemID(of: node.childNodes.first) == poster.itemID)
+    }
+
+    @Test func aLayoutWithNeonIsDrawnAtNight() {
+        #expect(RoomScene.isLit(FurnitureLayout(placed: [.init(itemID: "n", x: 0, z: 0, rotation: 0, footprint: [1, 0.05], category: "neon_sign")])))
+        #expect(!RoomScene.isLit(FurnitureLayout(placed: [.init(itemID: "s", x: 0, z: 0, rotation: 0, footprint: [1, 1], category: "sofa")])))
+        #expect(!RoomScene.isLit(nil))
+    }
+
+    @Test func aPictureLooksAtTheFrontsOfThePieces() throws {
+        let d = try #require(StarterBoard.load().first { $0.id == "starter-christmas" })
+        let eye = RoomScene.viewpoint(d.room, layout: d.layout).eye
+        let fireplace = try #require(d.layout.placed.first { $0.category == "fireplace" })
+        let toCamera = Point2(Double(eye.x), Double(eye.z)) - Point2(fireplace.x, fireplace.z)
+        #expect(PlanMath.front(degrees: fireplace.rotation).dot(toCamera) > 0)
+    }
+
     @Test func floorCoversTheWholeOutline() {
         let tris = RoomScene.triangulate(sample.room.floorPolygon)
         var area = 0.0

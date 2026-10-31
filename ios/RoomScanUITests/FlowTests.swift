@@ -50,7 +50,7 @@ final class FlowTests: XCTestCase {
         tap("saveDone")
 
         tap("remixPin")
-        // Three sample rooms, so it asks which.
+        // Several sample rooms, so it asks which.
         let choice = app.buttons["Sample living room"].firstMatch
         XCTAssertTrue(choice.waitForExistence(timeout: 5))
         choice.tap()

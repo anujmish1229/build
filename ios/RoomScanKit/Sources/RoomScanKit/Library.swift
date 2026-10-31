@@ -38,10 +38,13 @@ public struct SavedDesign: Codable, Sendable, Equatable, Identifiable {
     public var products: [CatalogEntry]
     public var remixedFrom: String?
     public var wallPaint: WallPaint.Paint?
+    /// The ready-made design this still is, unchanged. It's already on the Board as inspiration, so it isn't shown again as the user's.
+    public var exampleOf: String?
 
     public init(id: UUID = UUID(), roomID: UUID, name: String, theme: String, plan: FurniturePlan, layout: FurnitureLayout,
                 notes: String = "", provider: String = "", summary: String = "", products: [CatalogEntry] = [],
-                remixedFrom: String? = nil, wallPaint: WallPaint.Paint? = nil, createdAt: Date = Date()) {
+                remixedFrom: String? = nil, wallPaint: WallPaint.Paint? = nil, exampleOf: String? = nil, createdAt: Date = Date()) {
+        self.exampleOf = exampleOf
         self.id = id; self.roomID = roomID; self.name = name; self.createdAt = createdAt; self.theme = theme
         self.plan = plan; self.layout = layout; self.notes = notes; self.provider = provider; self.summary = summary
         self.products = products; self.remixedFrom = remixedFrom; self.wallPaint = wallPaint
@@ -102,6 +105,8 @@ public struct Library: Codable, Sendable, Equatable {
     public var pins: [BoardPin] = []
     /// Samples are only added once, so they don't come back after the user deletes everything.
     public var samplesAdded = false
+    /// Whether a library from before the sample rooms came furnished has been given its examples.
+    public var examplesAdded = false
 
     public init() {}
 
@@ -113,6 +118,7 @@ public struct Library: Codable, Sendable, Equatable {
         boards = try c.decodeIfPresent([Board].self, forKey: .boards) ?? []
         pins = try c.decodeIfPresent([BoardPin].self, forKey: .pins) ?? []
         samplesAdded = try c.decodeIfPresent(Bool.self, forKey: .samplesAdded) ?? !rooms.isEmpty
+        examplesAdded = try c.decodeIfPresent(Bool.self, forKey: .examplesAdded) ?? false
     }
 
     public func designs(for roomID: UUID) -> [SavedDesign] {
@@ -301,17 +307,52 @@ public final class LibraryStore: @unchecked Sendable {
     }
 
     /// Adds the sample rooms once.
-    public func addSamplesIfNeeded() throws {
-        guard !current.samplesAdded else { return }
-        try addSamples()
+    public func addSamplesIfNeeded(starter: [DesignPackage] = StarterBoard.load()) throws {
+        if !current.samplesAdded { return try addSamples(starter: starter) }
+        guard !current.examplesAdded else { return }
+        // A library from an earlier version: furnish its untouched sample rooms and add the holiday room, once.
+        try update { lib in
+            lib.examplesAdded = true
+            for sample in SampleRooms.all {
+                if sample.name == SampleRooms.holidayRoomName {
+                    Self.add(sample, starter: starter, to: &lib)
+                } else if let i = lib.rooms.firstIndex(where: { $0.room == sample.room }), lib.designs(for: lib.rooms[i].id).isEmpty {
+                    var room = lib.rooms[i]
+                    Self.furnish(&room, from: sample, starter: starter, in: &lib)
+                    lib.rooms[i] = room
+                }
+            }
+        }
     }
 
-    public func addSamples() throws {
+    /// Adds every sample room, each with its ready-made designs.
+    public func addSamples(starter: [DesignPackage] = StarterBoard.load()) throws {
         try update { lib in
             lib.samplesAdded = true
-            for sample in SampleRooms.all.reversed() {
-                lib.rooms.insert(SavedRoom(name: lib.freeRoomName(sample.name), room: sample.room), at: 0)
-            }
+            lib.examplesAdded = true
+            for sample in SampleRooms.all.reversed() { Self.add(sample, starter: starter, to: &lib) }
+        }
+    }
+
+    private static func add(_ sample: SampleRooms.Sample, starter: [DesignPackage], to lib: inout Library) {
+        var room = SavedRoom(name: lib.freeRoomName(sample.name), room: sample.room)
+        furnish(&room, from: sample, starter: starter, in: &lib)
+        lib.rooms.insert(room, at: 0)
+    }
+
+    /// Gives a room the first design's colours, and the designs. Any other wall colour is that design's paint.
+    private static func furnish(_ room: inout SavedRoom, from sample: SampleRooms.Sample, starter: [DesignPackage], in lib: inout Library) {
+        let designs = StarterBoard.designs(for: sample, in: starter)
+        guard let first = designs.first else { return }
+        room.colours = first.colours
+        // The holiday room has neutral walls of its own, since each of its designs paints them.
+        if sample.name == SampleRooms.holidayRoomName { room.colours.wall = "#EFE8DC" }
+        for (n, design) in designs.enumerated() {
+            let wall = design.colours.wall
+            let paint = wall == room.colours.wall ? nil : WallPaint.Paint(design.colours.wallName, wall)
+            lib.designs.insert(SavedDesign(roomID: room.id, name: lib.freeDesignName(design.title, in: room.id), theme: design.theme, plan: design.plan,
+                                           layout: design.layout, notes: "", provider: "Ready-made example", summary: design.notes,
+                                           products: design.products, wallPaint: paint, exampleOf: design.id, createdAt: Date().addingTimeInterval(-Double(n))), at: 0)
         }
     }
 
@@ -320,6 +361,7 @@ public final class LibraryStore: @unchecked Sendable {
         try update { lib in
             lib = Library()
             lib.samplesAdded = true
+            lib.examplesAdded = true
         }
     }
 }

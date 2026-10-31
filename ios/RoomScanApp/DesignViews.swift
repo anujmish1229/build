@@ -20,7 +20,7 @@ struct NewDesignForm: View {
     @Binding var leaveOut: String
     @Binding var budget: String
 
-    static let suggestions = ["Calm japandi bedroom", "Warm boho living room", "Minimalist home office", "Scandinavian dining room", "Dark moody lounge"]
+    static let suggestions = ["Cosy Christmas living room", "Haunted Halloween lounge", "Calm japandi bedroom", "Warm boho living room", "Minimalist home office", "Scandinavian dining room", "Dark moody lounge"]
 
     var body: some View {
         Section("Theme") {
@@ -88,13 +88,16 @@ struct NewDesignView: View {
                 }
             }
             .confirmationDialog("Your walls clash with this look. Would you repaint?", isPresented: $askPaint, titleVisibility: .visible) {
-                ForEach(WallPaint.suggestions(for: theme), id: \.self) { p in
+                ForEach(paints, id: \.self) { p in
                     Button(p.name.capitalized) { paint = p; generate(room) }
                 }
                 Button("Keep my walls") { paint = nil; generate(room) }
             }
         }
     }
+
+    /// The colours the design itself would paint the walls for this theme.
+    private var paints: [WallPaint.Paint] { WallPaint.suggestions(for: theme, style: DesignStyle(theme: theme)) }
 
     private var constraints: FurnishConstraints {
         func list(_ s: String) -> [String] { s.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty } }
@@ -103,7 +106,7 @@ struct NewDesignView: View {
 
     private func start(_ room: SavedRoom) {
         paint = nil
-        if WallPaint.clashes(room.colours.wall, theme: theme) { askPaint = true } else { generate(room) }
+        if WallPaint.worthOffering(paints, over: room.colours.wall) { askPaint = true } else { generate(room) }
     }
 
     private func generate(_ room: SavedRoom) {
@@ -195,10 +198,10 @@ struct DesignDetailView: View {
                         ProductRow(piece: p, entry: design.products.first { $0.catalogID == p.catalogID })
                             .swipeActions {
                                 Button("Remove", role: .destructive) { apply(design) { DesignStudio.remove($0, itemID: p.itemID, room: room.room) } }
-                                Button("Swap") { swapping = p }.tint(Editorial.pumpkin)
+                                if p.catalogID != nil { Button("Swap") { swapping = p }.tint(Editorial.pumpkin) }
                             }
                             .contextMenu {
-                                Button("Swap") { swapping = p }
+                                if p.catalogID != nil { Button("Swap") { swapping = p } }
                                 Button("Remove", role: .destructive) { apply(design) { DesignStudio.remove($0, itemID: p.itemID, room: room.room) } }
                             }
                     }
@@ -288,6 +291,8 @@ struct DesignDetailView: View {
                 $0.summary = option.summary
                 $0.products = option.products
                 $0.wallPaint = paint
+                // Changed, so it's the user's own design now.
+                $0.exampleOf = nil
             }
         }
     }
@@ -331,23 +336,33 @@ struct CatalogPicker: View {
 
     private var shown: [CatalogEntry] {
         let q = search.lowercased()
-        return q.isEmpty ? entries : entries.filter { $0.name.lowercased().contains(q) || $0.category.replacingOccurrences(of: "_", with: " ").contains(q) }
+        return q.isEmpty ? entries : entries.filter { $0.name.lowercased().contains(q) || $0.category.replacingOccurrences(of: "_", with: " ").contains(q) || $0.retailers.contains { $0.lowercased().contains(q) } }
     }
 
     var body: some View {
         NavigationStack {
-            List(shown) { entry in
+            List {
+                // Not in the catalogue: there's still a way to find one.
+                if shown.isEmpty, !search.isEmpty {
+                    Link(destination: CatalogEntry.shoppingSearch(search)) {
+                        Label("Search Google Shopping for “\(search)”", systemImage: "magnifyingglass")
+                    }
+                    .listRowBackground(Editorial.card)
+                    .accessibilityIdentifier("searchShopping")
+                }
+                ForEach(shown) { entry in
                 Button {
                     onPick(entry)
                     dismiss()
                 } label: {
                     VStack(alignment: .leading) {
                         Text(entry.name).foregroundStyle(.primary)
-                        Text([entry.priceText, entry.size.map { String(format: "%.2f", $0) }.joined(separator: " × ") + " m"].compactMap { $0 }.joined(separator: ", "))
+                        Text([entry.shopLabel, entry.priceText, entry.size.map { String(format: "%.2f", $0) }.joined(separator: " × ") + " m", entry.propText].compactMap { $0 }.joined(separator: ", "))
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                 }
                 .listRowBackground(Editorial.card)
+                }
             }
             .nightBackground()
             .searchable(text: $search)

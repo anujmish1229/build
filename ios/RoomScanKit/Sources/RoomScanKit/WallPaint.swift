@@ -11,8 +11,12 @@ public enum WallPaint {
         }
     }
 
-    /// Sixteen groups of looks and their paints, best first. The more distinctive looks come first.
+    /// Eighteen groups of looks and their paints, best first. The more distinctive looks come first.
     static let looks: [(words: [String], paints: [Paint])] = [
+        (Season.christmas.themeWords, [Season.christmas.paint, Paint("cranberry", "#6A2029"), Paint("cream", "#F1E8D6")]),
+        // A room lit by jack-o'-lanterns and neon wants dark walls for the orange and the glow to read against.
+        (Season.halloween.themeWords, [Season.halloween.paint, Paint("midnight black", "#14131A"), Paint("blood red", "#3B1013"),
+                                       Paint("crypt green", "#1A2A1F"), Paint("charcoal", "#24252A")]),
         (["cyberpunk", "neon", "synthwave", "futuristic", "gaming", "sci-fi", "scifi"],
          [Paint("midnight navy", "#1B2236"), Paint("blue-black", "#12141C"), Paint("deep purple", "#2E1F47")]),
         (["gothic"], [Paint("deep plum", "#3A1E2C"), Paint("charcoal", "#2B2B30"), Paint("oxblood", "#4A1518")]),
@@ -51,6 +55,32 @@ public enum WallPaint {
     public static func suggestions(for theme: String) -> [Paint] {
         let words = FurniturePlanner.words(theme)
         return looks.first { !words.isDisjoint(with: $0.words) }?.paints ?? []
+    }
+
+    /// The paints to offer for a design, best first: the accent colours it chose lead, the theme's palette follows.
+    public static func suggestions(for theme: String, style: DesignStyle?) -> [Paint] {
+        var out: [Paint] = []
+        func offer(_ paint: Paint) {
+            guard !out.contains(where: { $0.name == paint.name || $0.hex == paint.hex }) else { return }
+            out.append(paint)
+        }
+        for accent in style?.accents ?? [] {
+            guard let f = Finishes.find(accent) else { continue }
+            offer(Paint(accent, RoomColours.hex(r: f.r, g: f.g, b: f.b)))
+        }
+        for paint in suggestions(for: theme) { offer(paint) }
+        return out
+    }
+
+    /// Whether to offer a repaint: whenever the design has a wall colour worth suggesting and the walls aren't
+    /// already about one of them.
+    public static func worthOffering(_ paints: [Paint], over wall: String) -> Bool {
+        guard !paints.isEmpty else { return false }
+        guard let w = RoomColours.rgb(wall) else { return true }
+        return !paints.contains { paint in
+            guard let p = RoomColours.rgb(paint.hex) else { return false }
+            return (2 * pow(w.r - p.r, 2) + 4 * pow(w.g - p.g, 2) + 3 * pow(w.b - p.b, 2)).squareRoot() / 3 < 0.1
+        }
     }
 
     /// True when the walls are far from every paint that suits the theme. A theme with no look never asks.
