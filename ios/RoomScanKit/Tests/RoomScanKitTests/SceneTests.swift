@@ -29,17 +29,14 @@ import Testing
         }
     }
 
-    @Test func furnitureBoxesMatchTheirSizeAndPlace() async throws {
+    @Test func furnitureIsWhereTheLayoutSays() async throws {
         let layout = await layout()
         #expect(!layout.placed.isEmpty)
-        let scene = RoomScene.make(sample.room, layout)
+        let scene = RoomScene.make(sample.room, layout, catalog: .bundled)
         for p in layout.placed {
             let holder = try #require(scene.rootNode.childNode(withName: RoomScene.itemPrefix + p.itemID, recursively: true))
             #expect(abs(Double(holder.position.x) - p.x) < 1e-5 && abs(Double(holder.position.z) - p.z) < 1e-5)
-            let box = try #require(holder.childNode(withName: "body", recursively: false)?.geometry as? SCNBox)
-            #expect(abs(Double(box.width) - p.footprint[0]) < 1e-5)
-            #expect(abs(Double(box.length) - p.footprint[1]) < 1e-5)
-            #expect(abs(Double(box.height) - (p.height ?? 0)) < 1e-5)
+            #expect(abs(Double(holder.eulerAngles.y) - p.rotation * .pi / 180) < 1e-5)
         }
     }
 
@@ -76,7 +73,7 @@ import Testing
 
     @Test func usdzFileKeepsTheRoomsTrueSize() async throws {
         let layout = await layout()
-        let url = try #require(RoomScene.writeUSDZ(sample.room, layout))
+        let url = try #require(RoomScene.writeUSDZ(sample.room, layout, products: FurnitureCatalog.bundled.entries))
         defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
         #expect(try Data(contentsOf: url).count > 1000)
         let loaded = try SCNScene(url: url, options: nil)

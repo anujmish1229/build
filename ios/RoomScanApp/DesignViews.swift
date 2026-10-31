@@ -4,8 +4,9 @@ import SwiftUI
 
 /// A picture for the share sheet, rendered on the device. Falls back to a plain icon if rendering isn't possible.
 enum SharePicture {
-    @MainActor static func image(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours?, wallPaint: String? = nil) -> Image {
-        if let cg = RoomScene.snapshot(room, layout, colours: colours, wallPaint: wallPaint, size: CGSize(width: 480, height: 600)) {
+    @MainActor static func image(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours?, wallPaint: String? = nil,
+                                 products: [CatalogEntry] = [], style: DesignStyle? = nil) -> Image {
+        if let cg = RoomScene.snapshot(room, layout, colours: colours, wallPaint: wallPaint, products: products, style: style, size: CGSize(width: 480, height: 600)) {
             return Image(uiImage: UIImage(cgImage: cg))
         }
         return Image(systemName: "square.split.bottomrightquarter")
@@ -155,7 +156,7 @@ struct DesignDetailView: View {
             let colours = room.colours
             CardList {
                 Section {
-                    ObjectSceneView(room: room.room, layout: design.layout, colours: colours, wallPaint: design.wallPaint?.hex, interactive: false, onTap: { _ in })
+                    ObjectSceneView(room: room.room, layout: design.layout, colours: colours, wallPaint: design.wallPaint?.hex, products: design.products, style: design.plan.style, interactive: false, onTap: { _ in })
                         .frame(height: 240).allowsHitTesting(false)
                     Button("View in 3D and AR") { viewing = true }.accessibilityIdentifier("open3D")
                     Text(design.summary).font(.headline)
@@ -215,7 +216,7 @@ struct DesignDetailView: View {
                 }
                 Section {
                     if let url = app.shareFile(design: design, room: room) {
-                        ShareLink(item: url, preview: SharePreview(design.name, image: SharePicture.image(room.room, design.layout, colours: colours, wallPaint: design.wallPaint?.hex))) { Text("Send this design") }
+                        ShareLink(item: url, preview: SharePreview(design.name, image: SharePicture.image(room.room, design.layout, colours: colours, wallPaint: design.wallPaint?.hex, products: design.products, style: design.plan.style))) { Text("Send this design") }
                     }
                     Button("Rename") { newName = design.name; renaming = true }
                     Button("Duplicate") {
@@ -232,7 +233,7 @@ struct DesignDetailView: View {
             .navigationTitle(design.name)
             .navigationBarTitleDisplayMode(.inline)
             .fullScreenCover(isPresented: $viewing) {
-                RoomViewer(room: room.room, layout: design.layout, colours: colours, wallPaint: design.wallPaint?.hex, products: design.products)
+                RoomViewer(room: room.room, layout: design.layout, colours: colours, wallPaint: design.wallPaint?.hex, products: design.products, style: design.plan.style)
             }
             .sheet(item: $swapping) { piece in
                 CatalogPicker(title: "Swap \(piece.name ?? piece.itemID)", entries: DesignStudio.alternatives(for: piece.itemID, in: design.option)) { entry in
@@ -275,9 +276,8 @@ struct DesignDetailView: View {
 
     private func factLine(_ design: SavedDesign) -> String {
         let count = design.layout.placed.count
-        let total = design.placedProducts.compactMap(\.price).reduce(0, +)
-        let currency = design.placedProducts.first?.currency ?? ""
-        return "\(count) piece\(count == 1 ? "" : "s")" + (total > 0 ? ", about $\(Int(total)) \(currency)" : "")
+        let total = Prices.totalText(design.placedProducts, home: Prices.homeCurrency).map { ", \($0)" } ?? ""
+        return "\(count) piece\(count == 1 ? "" : "s")\(total)"
     }
 
     private func store(_ option: LayoutOption, paint: WallPaint.Paint?, into design: SavedDesign) {
@@ -318,27 +318,6 @@ struct DesignDetailView: View {
     private func svgFile(_ design: SavedDesign, room: SavedRoom) -> URL? {
         try? ShareFiles.temporaryFile(Data(RoomRenderer.svg(room.room, design.layout, units: app.units).utf8),
                                       name: ShareFiles.fileName(design.name, ext: "svg"))
-    }
-}
-
-/// A piece as a row (FR-G2).
-struct ProductRow: View {
-    let piece: FurnitureLayout.Placed
-    let entry: CatalogEntry?
-    @Environment(\.openURL) private var openURL
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(entry?.name ?? piece.name ?? piece.itemID)
-            HStack {
-                if let price = entry?.priceText { Text(price) }
-                if let store = entry?.store { Text(store) }
-            }
-            .font(.footnote).foregroundStyle(.secondary)
-            if let note = entry?.note { Text(note).font(.caption).foregroundStyle(.orange) }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture { if let url = entry?.url { openURL(url) } }
     }
 }
 

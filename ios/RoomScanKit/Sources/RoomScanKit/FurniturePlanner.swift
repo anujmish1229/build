@@ -194,7 +194,7 @@ public enum FurniturePlanner {
             let name = words(e.name)
             s += 0.5 * Double(name.intersection(Set(brief.materials + brief.accents)).count)
             s += 3 * Double(name.intersection(nameWords).count)
-            if let budget, let price = e.price { s -= 2 * price / max(budget, 1) }
+            if let budget, let price = e.budgetPrice { s -= 2 * price / max(budget, 1) }
             return s
         }
         // Ties keep catalogue order, so the same input always gives the same plan.
@@ -376,7 +376,7 @@ public enum FurniturePlanner {
     static func notes(brief: DesignBrief, base: [String], layout: FurnitureLayout, constraints: FurnishConstraints, catalog: FurnitureCatalog) -> String {
         var lines = (brief.note.isEmpty ? [] : [brief.note]) + base
         if let budget = constraints.budgetAmount {
-            let total = layout.placed.compactMap { catalog.entry($0.catalogID)?.price }.reduce(0, +)
+            let total = layout.placed.compactMap { catalog.entry($0.catalogID)?.budgetPrice }.reduce(0, +)
             if total > budget { lines.append("This comes to \(Int(total.rounded())), over your budget of \(Int(budget)).") }
         }
         return lines.joined(separator: " ")

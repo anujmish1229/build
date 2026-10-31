@@ -14,6 +14,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var feed: FeedFile?
     let starter = StarterBoard.load()
     private let feedStore: FeedStore
+    private let catalogStore: CatalogStore
 
     let store: LibraryStore
     @AppStorage("unitSystem") var unitsRaw = UnitSystem.deviceDefault.rawValue
@@ -28,6 +29,8 @@ final class AppModel: ObservableObject {
         store = LibraryStore(directory: dir)
         feedStore = FeedStore(directory: dir)
         feed = feedStore.load()
+        catalogStore = CatalogStore(directory: dir)
+        catalogStore.load()
         if let problem = store.problem { toast = problem }
         do {
             if !testing { try Migrations.importLegacyRoom(from: RoomStore(url: RoomStore.defaultURL), into: store) }
@@ -51,6 +54,35 @@ final class AppModel: ObservableObject {
             toast = "Couldn't save: \(error.localizedDescription)"
             return nil
         }
+    }
+
+    // MARK: Settings
+
+    var hasImportedCatalogue: Bool { FileManager.default.fileExists(atPath: catalogStore.file.path) }
+
+    func resetCatalogue() {
+        catalogStore.reset()
+        objectWillChange.send()
+        toast = "Back to the built-in catalogue."
+    }
+
+    func feedExportFile() -> URL? {
+        guard let data = try? BoardContents.exportFeed(library).encoded() else { return nil }
+        return try? ShareFiles.temporaryFile(data, name: "board-feed.json")
+    }
+
+    /// Removes rooms, designs, boards, scans, the imported catalogue, the downloaded feed and the settings (12.4).
+    func deleteEverything() {
+        change { try $0.deleteAll() }
+        catalogStore.reset()
+        feedStore.delete()
+        feed = nil
+        CatalogRegion.reset()
+        Prices.displayCurrency = nil
+        unitsRaw = UnitSystem.deviceDefault.rawValue
+        UserDefaults.standard.removeObject(forKey: "feedAddress")
+        path = NavigationPath()
+        toast = "Everything was deleted."
     }
 
     // MARK: Board
@@ -131,6 +163,13 @@ final class AppModel: ObservableObject {
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         do {
             let data = try Data(contentsOf: url)
+            // A plain JSON file with no format of ours may be a catalogue (FR-C2).
+            if url.pathExtension.lowercased() == "json", (try? JSONDecoder().decode(FormatHeader.self, from: data))?.format == nil {
+                let catalog = try catalogStore.importData(data)
+                objectWillChange.send()
+                toast = "Now using a catalogue of \(catalog.entries.count) pieces."
+                return
+            }
             switch try ShareFiles.read(data) {
             case .scan(let scan):
                 if let room = change({ try $0.addRoom(SavedRoom(name: scan.name, room: scan.room, colours: scan.colours)) }) {
@@ -160,6 +199,8 @@ final class AppModel: ObservableObject {
     }
 }
 
+private struct FormatHeader: Decodable { let format: String? }
+
 /// Where the main navigation stack can go.
 enum Route: Hashable {
     case room(UUID)
@@ -168,6 +209,7 @@ enum Route: Hashable {
     case board(UUID)
     case rooms
     case boards
+    case settings
 
     static func == (a: Route, b: Route) -> Bool { a.key == b.key }
     func hash(into hasher: inout Hasher) { hasher.combine(key) }
@@ -179,6 +221,7 @@ enum Route: Hashable {
         case .board(let id): "board" + id.uuidString
         case .rooms: "rooms"
         case .boards: "boards"
+        case .settings: "settings"
         }
     }
 }
