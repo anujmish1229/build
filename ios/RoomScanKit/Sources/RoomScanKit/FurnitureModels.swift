@@ -37,12 +37,53 @@ public struct CatalogEntry: Codable, Sendable, Equatable, Identifiable {
     /// The region it's sold in; nil for a piece shown everywhere.
     public var region: String?
     public var look: ProductLook?
+    /// Shops that stock a prop with no one product page to link to.
+    public var retailers: [String]
+    /// How a prop is powered and what sets it off ("Plug-in (120V)", "Motion sensor"); nil for furniture.
+    public var power: String?
+    public var activation: String?
 
     public var id: String { catalogID }
+
+    /// Where to buy it: the store's own page, else a Google Shopping search for its name. Nil for an invented
+    /// sample piece, since nobody sells it and a search would only find something else.
+    public var shopURL: URL? { url ?? (catalogID.hasPrefix("sample_") ? nil : Self.shoppingSearch(name)) }
+
+    /// A Google Shopping search for a product name.
+    public static func shoppingSearch(_ name: String) -> URL {
+        var url = URLComponents(string: "https://www.google.com/search")!
+        url.queryItems = [URLQueryItem(name: "q", value: name), URLQueryItem(name: "tbm", value: "shop")]
+        return url.url ?? URL(string: "https://www.google.com/search?tbm=shop")!
+    }
+
+    /// Where the link leads: the store, else Google Shopping.
+    public var shopLabel: String? { store ?? (shopURL == nil ? nil : "Google Shopping") }
+
+    /// True when buying it means searching rather than opening one shop's page.
+    public var searchesForBuyers: Bool { url == nil && shopURL != nil }
+
+    /// "Sold at Spirit Halloween and Party City"; nil when no shops are named.
+    public var retailersText: String? {
+        guard !retailers.isEmpty else { return nil }
+        guard retailers.count > 1 else { return "Sold at " + retailers[0] }
+        return "Sold at " + retailers.dropLast().joined(separator: ", ") + " and " + retailers[retailers.count - 1]
+    }
+
+    /// "Plug-in (120V) · Motion sensor" for a prop that moves or lights up; nil for furniture.
+    public var propText: String? {
+        let parts = [power, activation].compactMap { $0 }.filter { !$0.isEmpty && $0 != "N/A" }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    /// True for a Halloween prop rather than a piece of furniture.
+    public var isProp: Bool { FurnitureCatalog.propCategories.contains(category) }
 
     enum CodingKeys: String, CodingKey {
         case catalogID = "catalog_id"
         case name, category, size, styles, clearance, store, url, price, currency, note, region, look
+        case retailers = "common_retailers"
+        case power = "power_source"
+        case activation = "activation_type"
     }
 
     public init(catalogID: String, name: String, category: String, size: [Double], styles: [String] = [],
@@ -50,7 +91,7 @@ public struct CatalogEntry: Codable, Sendable, Equatable, Identifiable {
                 currency: String? = nil, note: String? = nil) {
         self.catalogID = catalogID; self.name = name; self.category = category; self.size = size
         self.styles = styles; self.clearance = clearance; self.store = store; self.url = url
-        self.price = price; self.currency = currency; self.note = note
+        self.price = price; self.currency = currency; self.note = note; retailers = []
     }
 
     public init(from decoder: any Decoder) throws {
@@ -69,6 +110,9 @@ public struct CatalogEntry: Codable, Sendable, Equatable, Identifiable {
         note = try c.decodeIfPresent(String.self, forKey: .note)
         region = try c.decodeIfPresent(String.self, forKey: .region)
         look = try c.decodeIfPresent(ProductLook.self, forKey: .look)
+        retailers = try c.decodeIfPresent([String].self, forKey: .retailers) ?? []
+        power = try c.decodeIfPresent(String.self, forKey: .power)
+        activation = try c.decodeIfPresent(String.self, forKey: .activation)
     }
 
     static func webURL(_ text: String) -> URL? {
@@ -102,12 +146,33 @@ public struct FurnitureCatalog: Sendable {
         "sofa": Clearance(front: 0.5),
         "tv_stand": Clearance(front: 0.9),
         "bookshelf": Clearance(front: 0.5),
-        // Holiday pieces can be walked right up to, and a tree's or a pumpkin's reach is already in its size.
+        // Holiday pieces can be walked right up to, and a tree's reach is already in its size.
         "fireplace": Clearance(front: 0.5),
         "christmas_tree": Clearance(), "gift_pile": Clearance(), "nutcracker": Clearance(), "reindeer": Clearance(),
-        "pumpkins": Clearance(), "cauldron": Clearance(), "skeleton": Clearance(), "candelabra": Clearance(),
-        "tombstones": Clearance(), "spooky_tree": Clearance(),
+        // Halloween props: an animatronic needs room to lurch, a fogger room for its fog to spread.
+        "skeleton": Clearance(front: 0.4, sides: 0.3), "reaper": Clearance(front: 0.9, sides: 0.4),
+        "ghost": Clearance(front: 0.4, sides: 0.3), "groundbreaker": Clearance(front: 0.5), "tombstone": Clearance(front: 0.3),
+        "cauldron": Clearance(front: 0.3, sides: 0.2), "jack_o_lantern": Clearance(front: 0.2),
+        "fog_machine": Clearance(front: 0.6, sides: 0.3), "prop_light": Clearance(front: 0.2), "gore": Clearance(front: 0.15),
+        "spider": Clearance(front: 0.1, sides: 0.05), "cobweb": Clearance(front: 0.05), "coffin": Clearance(front: 0.7, sides: 0.3),
+        "candelabra": Clearance(front: 0.3), "curio": Clearance(front: 0.15), "fence": Clearance(front: 0.15),
+        "tree": Clearance(front: 0.15, sides: 0.1), "projector": Clearance(front: 0.3),
+        // Wall decor hangs above the floor, so it needs no space in front of it.
+        "poster": Clearance(), "neon_sign": Clearance(), "string_lights": Clearance(), "led_strip": Clearance(),
     ]
+
+    /// The kinds of thing that are Halloween props rather than furniture. They name no region, so they show
+    /// up whichever region furniture is shopped from.
+    public static let propCategories: Set<String> = [
+        "skeleton", "reaper", "ghost", "groundbreaker", "tombstone", "cauldron", "jack_o_lantern", "fog_machine",
+        "prop_light", "gore", "spider", "cobweb", "coffin", "candelabra", "curio", "fence", "tree",
+        "poster", "neon_sign", "string_lights", "led_strip", "projector",
+    ]
+
+    /// The props that hang on the wall above the furniture, so the solver lets them share the floor a piece
+    /// stands on: a poster over the sofa costs the sofa nothing. A projector stands on the floor.
+    public static let wallMounted: Set<String> = ["poster", "neon_sign", "string_lights", "led_strip"]
+
     static let fallbackClearance = Clearance(front: 0.3)
 
     public init(entries: [CatalogEntry], updated: String? = nil) {
@@ -182,19 +247,28 @@ public struct FurnitureCatalog: Sendable {
         self.init(entries: entries, updated: file.updated)
     }
 
-    /// The catalogue built into the app (Resources/catalog.json).
-    public static let bundled: FurnitureCatalog = {
-        guard let url = Bundle.module.url(forResource: "catalog", withExtension: "json"),
+    /// The catalogue built into the app: the furniture of Resources/catalog.json, then the props.
+    public static let bundled: FurnitureCatalog = resource("catalog").merged(with: halloweenProps)
+
+    /// The props of Resources/halloween.json. Every catalogue in use has them, whoever supplied its furniture.
+    static let halloweenProps = resource("halloween")
+
+    /// One bundled catalogue file, or an empty catalogue when it is missing or unreadable.
+    static func resource(_ name: String) -> FurnitureCatalog {
+        guard let url = Bundle.module.url(forResource: name, withExtension: "json"),
               let data = try? Data(contentsOf: url), let catalog = try? FurnitureCatalog(json: data)
         else { return FurnitureCatalog(entries: []) }
         return catalog
-    }()
+    }
+
+    /// Just the Halloween props.
+    public var props: [CatalogEntry] { entries.filter(\.isProp) }
 
     /// A catalogue built into this copy of the app from catalog-local/, if there is one.
     public static let builtIntoApp: FurnitureCatalog? = {
         guard let url = Bundle.main.url(forResource: "ikea-global", withExtension: "json"),
               let data = try? Data(contentsOf: url) else { return nil }
-        return try? FurnitureCatalog(json: data)
+        return (try? FurnitureCatalog(json: data))?.merged(with: halloweenProps)
     }()
 
     private static let lock = NSLock()
@@ -223,7 +297,7 @@ public struct FurnitureCatalog: Sendable {
     /// Switches to an imported catalogue; nil goes back to the built-in one.
     public static func use(_ catalog: FurnitureCatalog?) {
         lock.lock()
-        imported = catalog
+        imported = catalog?.merged(with: halloweenProps)
         regional = nil
         lock.unlock()
     }
@@ -384,6 +458,11 @@ public struct FurnitureItem: Codable, Sendable, Equatable, Identifiable {
         placement = try c.decode(PlacementRule.self, forKey: .placement)
         priority = try c.decode(Int.self, forKey: .priority)
     }
+}
+
+extension FurnitureItem {
+    /// True for a Halloween prop rather than a piece of furniture.
+    public var isProp: Bool { FurnitureCatalog.propCategories.contains(category) }
 }
 
 /// A design's look: style words, materials and accent colours.

@@ -103,6 +103,21 @@ import Testing
         #expect(parts.filter { $0.name == "wall:w2" }.allSatisfy { !$0.isHidden })
     }
 
+    @Test func whatHangsOnAWallHidesWithItAndStaysTappable() throws {
+        let d = try #require(StarterBoard.load().first { $0.id == "starter-halloween" })
+        let scene = RoomScene.make(d.room, d.layout, colours: d.colours, products: d.products, style: d.plan.style)
+        let poster = try #require(d.layout.placed.first { FurnitureCatalog.wallMounted.contains($0.category ?? "") })
+        let node = try #require(scene.rootNode.childNode(withName: RoomScene.itemPrefix + poster.itemID, recursively: true))
+        #expect(node.parent?.name?.hasPrefix(RoomScene.wallPartPrefix) == true)
+        #expect(RoomScene.itemID(of: node.childNodes.first) == poster.itemID)
+    }
+
+    @Test func aLayoutWithNeonIsDrawnAtNight() {
+        #expect(RoomScene.isLit(FurnitureLayout(placed: [.init(itemID: "n", x: 0, z: 0, rotation: 0, footprint: [1, 0.05], category: "neon_sign")])))
+        #expect(!RoomScene.isLit(FurnitureLayout(placed: [.init(itemID: "s", x: 0, z: 0, rotation: 0, footprint: [1, 1], category: "sofa")])))
+        #expect(!RoomScene.isLit(nil))
+    }
+
     @Test func aPictureLooksAtTheFrontsOfThePieces() throws {
         let d = try #require(StarterBoard.load().first { $0.id == "starter-christmas" })
         let eye = RoomScene.viewpoint(d.room, layout: d.layout).eye

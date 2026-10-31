@@ -27,7 +27,7 @@ import Testing
     @Test(arguments: styles)
     func everyProductInEveryStyleStaysInsideItsSize(_ style: String) {
         let design = DesignStyle(words: style.isEmpty ? [] : [style])
-        for entry in FurnitureCatalog.bundled.entries {
+        for entry in FurnitureCatalog.bundled.entries where !entry.isProp {
             let placed = FurnitureLayout.Placed(itemID: "x", x: 0, z: 0, rotation: 0, footprint: [entry.size[0], entry.size[1]], category: entry.category, height: entry.size[2])
             let node = RoomScene.furniture(placed, entry: entry, style: design)
             let (lo, hi) = bounds(node)
@@ -45,7 +45,7 @@ import Testing
     func decorationsStayInsideTheirSize(_ season: String) async throws {
         let style = DesignStyle(words: [season])
         let room = SampleRooms.all[3].room
-        let plan = FurniturePlanner.plan(brief: DesignBrief(roomType: "living"), room: room, theme: season).plan
+        let plan = FurniturePlanner.plan(brief: DesignBrief(roomType: "living"), room: room, theme: season, catalog: .bundled).plan
         for item in plan.items where Season.isDecoration(item.category) {
             let placed = FurnitureLayout.Placed(itemID: "x", x: 0, z: 0, rotation: 0, footprint: [item.size[0], item.size[1]], category: item.category, height: item.size[2])
             let node = RoomScene.furniture(placed, style: style)
@@ -56,6 +56,20 @@ import Testing
             #expect(Double(hi.x - lo.x) < item.size[0] + tol, "\(item.name) is too wide: \(hi.x - lo.x) over \(item.size[0])")
             #expect(Double(hi.z - lo.z) < item.size[1] + tol, "\(item.name) is too deep: \(hi.z - lo.z) over \(item.size[1])")
         }
+    }
+
+    @Test func everyPropHasAModelOfItsOwn() {
+        var seen = Set<String>()
+        for entry in FurnitureCatalog.bundled.props {
+            seen.insert(entry.category)
+            let placed = FurnitureLayout.Placed(itemID: "x", x: 0, z: 0, rotation: 0, footprint: [entry.size[0], entry.size[1]], category: entry.category, catalogID: entry.catalogID, height: entry.size[2])
+            let node = RoomScene.furniture(placed, entry: entry)
+            #expect(node.childNodes.count >= 4, "\(entry.catalogID)")
+            if entry.look?.details?.contains("lit") == true {
+                #expect(node.childNodes.contains { $0.geometry?.firstMaterial?.emission.contents != nil }, "\(entry.catalogID)")
+            }
+        }
+        #expect(seen == FurnitureCatalog.propCategories)
     }
 
     /// A picture is made, and isn't blank.

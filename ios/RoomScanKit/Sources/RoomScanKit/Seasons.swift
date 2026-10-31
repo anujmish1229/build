@@ -1,7 +1,8 @@
 import Foundation
 
-/// The holidays a design can be themed for. A holiday adds decorations placed by the solver like any
-/// other piece, so doors and walkways stay clear. They aren't catalogue products and have no price.
+/// The holidays a design can be themed for. A holiday adds decorations placed by the solver like any other
+/// piece, so doors and walkways stay clear. Halloween's are catalogue props with a price and somewhere to buy
+/// them; Christmas's, and the fireplace, are drawn decorations with no price.
 public enum Season: String, CaseIterable, Sendable {
     case christmas, halloween
 
@@ -14,7 +15,10 @@ public enum Season: String, CaseIterable, Sendable {
     var themeWords: [String] {
         switch self {
         case .christmas: ["christmas", "xmas", "festive", "yuletide"]
-        case .halloween: ["halloween", "spooky", "haunted", "samhain"]
+        case .halloween: ["halloween", "hallowe", "haunted", "haunt", "haunting", "spooky", "spook", "scary", "creepy", "horror", "fright",
+                          "frightening", "graveyard", "cemetery", "grave", "graves", "crypt", "tomb", "witch", "witches", "ghost", "ghosts",
+                          "ghostly", "zombie", "zombies", "vampire", "monster", "monsters", "macabre", "eerie", "sinister", "pumpkin",
+                          "pumpkins", "skeleton", "skeletons", "coffin", "samhain"]
         }
     }
 
@@ -26,13 +30,34 @@ public enum Season: String, CaseIterable, Sendable {
         of(Set((style?.words ?? []).flatMap { FurniturePlanner.words($0) }))
     }
 
-    /// True for a category that's a holiday decoration, not something a store sells.
+    /// True for a category that's a drawn decoration, with no product behind it.
     public static func isDecoration(_ category: String?) -> Bool {
         decorations.contains(category ?? "")
     }
 
-    static let decorations: Set<String> = ["fireplace", "christmas_tree", "gift_pile", "nutcracker", "reindeer", "pumpkins",
-                                           "cauldron", "skeleton", "candelabra", "tombstones", "spooky_tree"]
+    static let decorations: Set<String> = ["fireplace", "christmas_tree", "gift_pile", "nutcracker", "reindeer"]
+
+    static func isProp(_ category: String) -> Bool { FurnitureCatalog.propCategories.contains(category) }
+
+    /// Which props a haunt gets, in the order they're placed and so dropped: a graveyard, a witch's lair, a
+    /// vampire's crypt, or the classic haunted house when the theme doesn't say which.
+    public static func props(for words: Set<String>) -> [String] {
+        func mentions(_ list: [String]) -> Bool { !words.isDisjoint(with: list) }
+        if mentions(["graveyard", "cemetery", "grave", "graves", "tomb", "tombstone", "zombie", "zombies", "bones", "undead"]) {
+            return ["tombstone", "skeleton", "poster", "groundbreaker", "string_lights", "tree", "projector",
+                    "fence", "fog_machine", "prop_light", "curio"]
+        }
+        if mentions(["witch", "witches", "potion", "potions", "coven", "spell", "spells", "cauldron", "apothecary"]) {
+            return ["cauldron", "candelabra", "neon_sign", "curio", "poster", "cobweb", "string_lights",
+                    "spider", "jack_o_lantern", "prop_light", "gore"]
+        }
+        if mentions(["vampire", "crypt", "coffin", "dracula", "gothic"]) {
+            return ["coffin", "candelabra", "neon_sign", "cobweb", "led_strip", "curio", "poster",
+                    "spider", "prop_light", "fog_machine", "gore"]
+        }
+        return ["jack_o_lantern", "ghost", "poster", "cobweb", "neon_sign", "skeleton", "string_lights",
+                "spider", "candelabra", "fog_machine", "prop_light"]
+    }
 
     /// The wall colour that suits the holiday.
     public var paint: WallPaint.Paint {
@@ -66,7 +91,7 @@ public enum Season: String, CaseIterable, Sendable {
     }
 
     /// The room type's slots with this holiday's pieces in. A living room turns to face a fireplace.
-    func slots(_ base: [FurniturePlanner.Slot], type: String, roles r: WallRoles, area: Double) -> [FurniturePlanner.Slot] {
+    func slots(_ base: [FurniturePlanner.Slot], type: String, roles r: WallRoles, area: Double, themeWords: Set<String> = []) -> [FurniturePlanner.Slot] {
         typealias Slot = FurniturePlanner.Slot
         let extra = FurniturePlanner.extraPriority
         let living = type == "living"
@@ -101,13 +126,29 @@ public enum Season: String, CaseIterable, Sendable {
             list.append(Slot(id: "nutcracker_right", category: "nutcracker", rule: .beside(targetItemID: "fireplace", side: "right", gap: 0.06), priority: extra, prop: Prop(name: "Nutcracker", size: [0.3, 0.3, 1.1])))
             list.append(Slot(id: "reindeer", category: "reindeer", rule: .corner(wallID: r.firstSide, corner: "end"), priority: extra, prop: Prop(name: "Golden reindeer", size: [0.75, 0.32, 1.0])))
         case .halloween:
+            // Props in the corners and along the free walls; what hangs goes mid-wall at eye height, one wall
+            // each, and beside the fireplace rather than behind it. All are extras, so a room loses a tombstone
+            // before it loses the bed.
             list.removeAll { $0.id == "plant" }
-            list.append(Slot(id: "pumpkins", category: "pumpkins", rule: .corner(wallID: r.main, corner: "end"), priority: 2, prop: Prop(name: "Jack-o'-lanterns", size: [1.0, 0.75, 0.68])))
-            list.append(Slot(id: "cauldron", category: "cauldron", rule: .corner(wallID: r.firstSide, corner: "end"), priority: small ? extra : 3, prop: Prop(name: "Bubbling cauldron", size: [0.72, 0.72, 0.82])))
-            list.append(Slot(id: "skeleton", category: "skeleton", rule: .beside(targetItemID: "fireplace", side: "right", gap: 0.08), priority: extra, prop: Prop(name: "Skeleton", size: [0.56, 0.36, 1.75])))
-            list.append(Slot(id: "candelabra", category: "candelabra", rule: .beside(targetItemID: "fireplace", side: "left", gap: 0.08), priority: extra, prop: Prop(name: "Candelabra", size: [0.42, 0.42, 1.55])))
-            list.append(Slot(id: "spooky_tree", category: "spooky_tree", rule: .corner(wallID: r.main, corner: "start"), priority: extra, prop: Prop(name: "Dead tree", size: [0.85, 0.85, 2.15])))
-            list.append(Slot(id: "tombstones", category: "tombstones", rule: .againstWall(wallID: r.firstSide, align: "center"), priority: extra, prop: Prop(name: "Tombstones", size: [1.15, 0.36, 0.82])))
+            let floorSpots: [PlacementRule] = [
+                .corner(wallID: r.main, corner: "end"), .corner(wallID: r.firstSide, corner: "end"), .corner(wallID: r.main, corner: "start"),
+                .corner(wallID: r.opposite, corner: "start"), .corner(wallID: r.secondSide, corner: "end"), .againstWall(wallID: r.firstSide, align: "center"),
+                .againstWall(wallID: r.opposite, align: "start"), .againstWall(wallID: r.firstSide, align: "end"),
+            ]
+            let wallOrder = living ? [r.secondSide, r.main, r.firstSide, r.opposite] : [r.main, r.opposite, r.firstSide, r.secondSide]
+            var onFloor = 0, onWall = 0
+            for category in Season.props(for: themeWords) where !list.contains(where: { $0.category == category }) {
+                let rule: PlacementRule
+                if FurnitureCatalog.wallMounted.contains(category) {
+                    let wall = wallOrder[onWall % wallOrder.count]
+                    rule = .againstWall(wallID: wall, align: wall == hearthWall ? "end" : "center")
+                    onWall += 1
+                } else {
+                    rule = floorSpots[onFloor % floorSpots.count]
+                    onFloor += 1
+                }
+                list.append(Slot(id: "prop_\(category)", category: category, rule: rule, priority: extra))
+            }
         }
         return list
     }
