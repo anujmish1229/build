@@ -50,7 +50,9 @@ struct FloorPlanView: View {
             let color: Color = hasError ? .red : isWarned ? .orange : selected ? .accentColor : .primary
             ctx.stroke(path, with: .color(color), lineWidth: selected ? 5 : 3)
             // Length label just outside the wall.
-            let mid = wall.point(at: wall.length / 2) - wall.inwardNormal * (16 / fit.scale)
+            // Side walls need more room than top and bottom ones, as the text runs across them.
+            let gap = abs(wall.direction.z) > abs(wall.direction.x) ? 26.0 : 16.0
+            let mid = wall.point(at: wall.length / 2) - wall.inwardNormal * (gap / fit.scale)
             ctx.draw(Text(Units.format(wall.length, model.units)).font(.caption2.monospacedDigit()).foregroundColor(color), at: pt(mid, fit))
         }
 

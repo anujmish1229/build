@@ -31,4 +31,11 @@ xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan \
   -configuration Debug -destination 'generic/platform=iOS' \
   -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build
 
+if [ "${1:-}" = "--ui" ]; then
+  echo "== Simulator walk-throughs =="
+  xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan \
+    -destination "platform=iOS Simulator,name=${SIMULATOR:-iPhone 18 Pro}" \
+    -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO test
+fi
+
 echo "CI passed"
