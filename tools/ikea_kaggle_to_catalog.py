@@ -1,4 +1,4 @@
-"""Turn the Kaggle "IKEA Global Product Catalog" CSV into a RoomScan furniture catalogue.
+"""Turn the Kaggle "IKEA Global Product Catalog" CSV into a Poltar furniture catalogue.
 
 The dataset (kaggle.com/datasets/ranjithpanicker/ikea-global-product-catalog-and-price-2026) is a third-party
 snapshot with no licence, so its output is for your own phone only. It goes in the gitignored catalog-local/

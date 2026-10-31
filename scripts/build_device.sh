@@ -21,11 +21,11 @@ if [ -z "$TEAM" ]; then
 fi
 
 (cd ios && xcodegen generate --quiet)
-xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan -configuration Release \
+xcodebuild -quiet -project ios/Poltar.xcodeproj -scheme Poltar -configuration Release \
   -destination 'generic/platform=iOS' -derivedDataPath .build/DeviceBuild \
   -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic build
 
-APP=.build/DeviceBuild/Build/Products/Release-iphoneos/RoomScan.app
+APP=.build/DeviceBuild/Build/Products/Release-iphoneos/Poltar.app
 codesign --verify --deep --strict "$APP"
 echo "Signed: $APP"
 

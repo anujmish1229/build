@@ -16,24 +16,24 @@ if git ls-files | grep -E '^catalog-local/' ; then echo "catalog-local must stay
 if git ls-files -- '*.json' | xargs grep -il 'ikea' ; then echo "IKEA data must stay out of the repository"; exit 1; fi
 
 echo "== Engine tests =="
-(cd ios/RoomScanKit && swift test -c release -Xswiftc -enable-testing)
+(cd ios/PoltarKit && swift test -c release -Xswiftc -enable-testing)
 
 echo "== Generate project =="
 (cd ios && xcodegen generate --quiet)
 
 echo "== App build (iOS Simulator, Debug) =="
-xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan \
+xcodebuild -quiet -project ios/Poltar.xcodeproj -scheme Poltar \
   -configuration Debug -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build
 
 echo "== App build (device, Debug): RoomPlan and ARKit paths only compile here =="
-xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan \
+xcodebuild -quiet -project ios/Poltar.xcodeproj -scheme Poltar \
   -configuration Debug -destination 'generic/platform=iOS' \
   -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build
 
 if [ "${1:-}" = "--ui" ]; then
   echo "== Simulator walk-throughs =="
-  xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan \
+  xcodebuild -quiet -project ios/Poltar.xcodeproj -scheme Poltar \
     -destination "platform=iOS Simulator,name=${SIMULATOR:-iPhone 18 Pro}" \
     -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO test
 fi

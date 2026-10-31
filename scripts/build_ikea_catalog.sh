@@ -17,7 +17,7 @@ mkdir -p catalog-local
 python3 tools/ikea_kaggle_to_catalog.py "$CSV" catalog-local/ikea-global.json
 
 # Lays the starter designs out now, on the Mac, so the first launch on the phone needs no solving.
-(cd ios/RoomScanKit && \
+(cd ios/PoltarKit && \
   LOCAL_CATALOG="$PWD/../../catalog-local/ikea-global.json" \
   LOCAL_STARTER_OUT="$PWD/../../catalog-local/ikea-starter.json" \
   LOCAL_REGION="$REGION" \
