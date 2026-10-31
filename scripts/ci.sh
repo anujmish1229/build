@@ -22,4 +22,9 @@ xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan \
   -configuration Debug -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build
 
+echo "== App build (device, Debug): RoomPlan and ARKit paths only compile here =="
+xcodebuild -quiet -project ios/RoomScan.xcodeproj -scheme RoomScan \
+  -configuration Debug -destination 'generic/platform=iOS' \
+  -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build
+
 echo "CI passed"

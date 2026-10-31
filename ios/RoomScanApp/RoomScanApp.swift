@@ -5,7 +5,10 @@ import RoomScanKit
 struct RoomScanApp: App {
     var body: some Scene {
         WindowGroup {
-            Text("RoomScan \(RoomScanKit.version)")
+            NavigationStack {
+                ScanView(onFinished: { _ in })
+                    .navigationTitle("RoomScan")
+            }
         }
     }
 }

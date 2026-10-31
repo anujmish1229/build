@@ -9,7 +9,7 @@ packages:
     path: RoomScanKit
 settings:
   base:
-    MARKETING_VERSION: "0.0.0"
+    MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     SWIFT_VERSION: "5.0"
 targets:
@@ -22,6 +22,5 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.anujmish1229.roomscan
-        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: RoomScanApp/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
