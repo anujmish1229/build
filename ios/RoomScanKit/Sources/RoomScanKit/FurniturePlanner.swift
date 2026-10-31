@@ -72,8 +72,14 @@ public enum FurniturePlanner {
     public static let rulesProvider = "Built-in rules"
     public static let roomTypes = ["bedroom", "living", "office", "dining"]
     public static let styles = ["christmas", "halloween", "japandi", "scandinavian", "mid-century", "modern", "boho", "minimalist", "warm", "dark"]
-    public static let categories = ["bed", "nightstand", "desk", "chair", "wardrobe", "dresser", "bookshelf", "storage", "sofa",
-                                    "armchair", "coffee_table", "tv_stand", "side_table", "lamp", "plant", "dining_table", "bench"]
+    public static let furnitureCategories = ["bed", "nightstand", "desk", "chair", "wardrobe", "dresser", "bookshelf", "storage", "sofa",
+                                             "armchair", "coffee_table", "tv_stand", "side_table", "lamp", "plant", "dining_table", "bench"]
+    /// The Halloween props it can decorate with.
+    public static let propCategories = ["jack_o_lantern", "tombstone", "skeleton", "ghost", "reaper", "groundbreaker", "cauldron",
+                                        "candelabra", "cobweb", "spider", "coffin", "tree", "fence", "fog_machine", "prop_light",
+                                        "poster", "neon_sign", "string_lights", "led_strip", "projector", "curio", "gore"]
+    /// Everything it can place.
+    public static let categories = furnitureCategories + propCategories
     public static let materialNames = ["oak", "walnut", "pine", "ash", "brass", "steel", "leather", "linen", "velvet", "rattan", "marble", "concrete", "wool"]
     public static let accentNames = ["sage", "terracotta", "navy", "mustard", "blush", "charcoal", "cream", "emerald", "burgundy", "teal", "black", "white"]
 
@@ -100,13 +106,25 @@ public enum FurniturePlanner {
         "storage": ["storage", "cabinet", "sideboard"], "sofa": ["sofa", "couch"], "armchair": ["armchair"],
         "coffee_table": ["coffee"], "tv_stand": ["tv", "television", "media"], "side_table": ["side"], "lamp": ["lamp", "light"],
         "plant": ["plant", "plants"], "dining_table": ["dining"], "bench": ["bench"],
-        "fireplace": ["fireplace"], "christmas_tree": ["tree"], "pumpkins": ["pumpkin", "pumpkins"], "cauldron": ["cauldron"],
-        "skeleton": ["skeleton"], "candelabra": ["candelabra"], "tombstones": ["tombstone", "tombstones"],
+        "fireplace": ["fireplace"],
+        // Halloween props and wall decor. "light" and "lamp" stay with lamp, so these claim only their own words.
+        "skeleton": ["skeleton", "skeletons", "bones", "skelly"], "reaper": ["reaper", "witch", "scarecrow", "grim", "figure"],
+        "ghost": ["ghost", "ghosts", "spirit", "phantom", "wraith"], "groundbreaker": ["zombie", "zombies", "groundbreaker", "corpse"],
+        "tombstone": ["tombstone", "tombstones", "headstone", "gravestone", "grave", "graves"], "cauldron": ["cauldron", "cauldrons"],
+        "jack_o_lantern": ["pumpkin", "pumpkins", "lantern", "jack"], "fog_machine": ["fog", "fogger", "smoke", "mist"],
+        "prop_light": ["floodlight", "spotlight", "uplight", "flame", "strobe"], "gore": ["gore", "blood", "bloody", "severed", "limb"],
+        "spider": ["spider", "spiders", "tarantula"], "cobweb": ["cobweb", "cobwebs", "web", "webs", "bat", "bats"],
+        "coffin": ["coffin", "coffins", "casket", "sarcophagus"], "candelabra": ["candelabra", "candle", "candles", "chandelier"],
+        "curio": ["skull", "skulls", "raven", "crow", "potion", "potions"], "fence": ["fence", "fencing", "railing"],
+        "tree": ["tree", "trees", "branches"], "poster": ["poster", "posters", "print", "prints", "artwork", "picture", "pictures"],
+        "neon_sign": ["neon", "sign", "signs", "signage"], "string_lights": ["string", "strings", "fairy", "twinkle", "garland", "lights"],
+        "led_strip": ["led", "leds", "strip", "strips", "rgb"], "projector": ["projector", "projectors", "projection", "projected"],
     ]
 
     /// The kind of piece some words name. Specific kinds first: "bedside table" is a nightstand, not a table.
     public static func kind(of words: Set<String>) -> String? {
-        let order = ["nightstand", "coffee_table", "side_table", "dining_table", "tv_stand", "armchair", "bookshelf"] + kindWords.keys.sorted()
+        let order = ["nightstand", "coffee_table", "side_table", "dining_table", "tv_stand", "armchair", "bookshelf",
+                     "neon_sign", "led_strip", "string_lights"] + kindWords.keys.sorted()
         return order.first { !words.isDisjoint(with: kindWords[$0] ?? []) }
     }
 
@@ -190,7 +208,7 @@ public enum FurniturePlanner {
     // MARK: Choosing pieces
 
     /// Scores a product by style words in common, materials named, and budget (FR-L6, FR-L8).
-    static func bestEntry(_ category: String, brief: DesignBrief, catalog: FurnitureCatalog, budget: Double?, nameWords: Set<String> = []) -> CatalogEntry? {
+    static func bestEntry(_ category: String, brief: DesignBrief, catalog: FurnitureCatalog, budget: Double?, nameWords: Set<String> = [], headroom: Double = .infinity) -> CatalogEntry? {
         let wanted = Set(brief.styleWords)
         func score(_ e: CatalogEntry) -> Double {
             var s = Double(Set(e.styles.map { $0.lowercased() }).intersection(wanted).count)
@@ -202,7 +220,7 @@ public enum FurniturePlanner {
         }
         // Ties keep catalogue order, so the same input always gives the same plan.
         var best: (CatalogEntry, Double)?
-        for e in catalog.entries where e.category == category {
+        for e in catalog.entries where e.category == category && (e.size.count > 2 ? e.size[2] : 0) <= headroom {
             let value = score(e)
             if best == nil || value > best!.1 + 1e-9 { best = (e, value) }
         }
@@ -305,7 +323,7 @@ public enum FurniturePlanner {
         var brief = brief
         let season = Season.of(words(theme).union(words(brief.styleWords.joined(separator: " "))))
         if let season {
-            list = season.slots(list, type: type, roles: roles, area: room.derived.area)
+            list = season.slots(list, type: type, roles: roles, area: room.derived.area, themeWords: words(theme))
             brief.styleWords.removeAll { $0 == season.rawValue }
             brief.styleWords.insert(season.rawValue, at: 0)
         }
@@ -358,7 +376,14 @@ public enum FurniturePlanner {
                 continue
             }
             let wanted = nameWordsByKind[slot.category] ?? []
-            guard let entry = bestEntry(slot.category, brief: brief, catalog: catalog, budget: budget, nameWords: wanted.union(season?.preferredFinishes ?? [])) else {
+            // Nothing taller than the room, so the 12-ft lawn skeleton only turns up where there's headroom for it.
+            // A prop's styles name the kind of haunt it suits, so the theme's own words can pick it.
+            var reading = brief
+            if Season.isProp(slot.category) { reading.styleWords += words(theme) }
+            let headroom = room.ceilingHeight > 1.8 ? room.ceilingHeight - 0.05 : Double.infinity
+            guard let entry = bestEntry(slot.category, brief: reading, catalog: catalog, budget: budget, nameWords: wanted.union(season?.preferredFinishes ?? []), headroom: headroom) else {
+                // A decoration the catalogue doesn't have is simply left out.
+                if Season.isProp(slot.category) && slot.priority >= extraPriority { continue }
                 if missing.insert(slot.category).inserted { notes.append("The catalogue has no \(slot.category.replacingOccurrences(of: "_", with: " ")).") }
                 continue
             }
@@ -454,9 +479,9 @@ enum AIBriefReader {
         var roomType: String
         @Guide(description: "Up to six lowercase style words for the furniture", .maximumCount(6))
         var styleWords: [String]
-        @Guide(description: "Kinds of furniture the theme asks for, if any", .element(.anyOf(FurniturePlanner.categories)), .maximumCount(4))
+        @Guide(description: "Kinds of furniture or Halloween prop the theme asks for, if any", .element(.anyOf(FurniturePlanner.categories)), .maximumCount(4))
         var wanted: [String]
-        @Guide(description: "Kinds of furniture the theme says to leave out, if any", .element(.anyOf(FurniturePlanner.categories)), .maximumCount(4))
+        @Guide(description: "Kinds of furniture or prop the theme says to leave out, if any", .element(.anyOf(FurniturePlanner.categories)), .maximumCount(4))
         var avoided: [String]
         @Guide(description: "Up to three materials that give the theme its look", .element(.anyOf(FurniturePlanner.materialNames)), .maximumCount(3))
         var materials: [String]
@@ -468,8 +493,8 @@ enum AIBriefReader {
 
     static let instructions = """
         You are an interior designer. Read the user's theme for one room and describe what it asks for: the kind \
-        of room, the style, materials and accent colours, any pieces it specifically wants or doesn't want, and \
-        the design idea in one or two friendly sentences. Don't list furniture the theme doesn't mention.
+        of room, the style, materials and accent colours, any pieces or Halloween props it specifically wants or doesn't want, and \
+        the design idea in one or two friendly sentences. Don't list furniture or props the theme doesn't mention.
         """
 
     static func read(_ prompt: String) async -> DesignBrief? {

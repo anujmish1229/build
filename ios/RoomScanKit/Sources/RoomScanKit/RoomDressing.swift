@@ -76,7 +76,8 @@ struct RoomDressing {
         for o in room.openings(onWall: wall.id) where o.offset - 0.08 < t1 && o.offset + o.width + 0.08 > t0 && o.sill - 0.05 < y1 && o.sill + o.height + 0.2 > y0 {
             return false
         }
-        for p in layout.placed where p.itemID != ignoring && (p.height ?? 0) > y0 - 0.05 {
+        // What hangs is on the wall whatever its stated height, so nothing else may go over it.
+        for p in layout.placed where p.itemID != ignoring && ((p.height ?? 0) > y0 - 0.05 || FurnitureCatalog.wallMounted.contains(p.category ?? "")) {
             let corners = RoomRenderer.outline(p).map { (t: ($0 - wall.start).dot(wall.direction), out: ($0 - wall.start).dot(wall.inwardNormal)) }
             guard let near = corners.map(\.out).min(), near < 0.7, corners.map(\.out).max() ?? 0 > -0.05 else { continue }
             if corners.map(\.t).min()! < t1 && corners.map(\.t).max()! > t0 { return false }
@@ -281,7 +282,7 @@ struct RoomDressing {
         }
         spots.append((c + across * (w / 2 + seat.d * 0.28), p.rotation - 90))
         spots.append((c - across * (w / 2 + seat.d * 0.28), p.rotation + 90))
-        let others = layout.placed.filter { $0.itemID != p.itemID }.map(RoomRenderer.outline)
+        let others = layout.placed.filter { $0.itemID != p.itemID && !FurnitureCatalog.wallMounted.contains($0.category ?? "") }.map(RoomRenderer.outline)
         let floor = Shape.inset(room.floorPolygon, by: 0.02)
         for (spot, turn) in spots {
             let shape = Solver.localRect(spot.x, spot.z, turn, (-seat.w / 2, seat.w / 2, -seat.d / 2, seat.d / 2))
@@ -393,7 +394,7 @@ struct RoomDressing {
     }
 
     private func layoutNear(_ wall: Wall, from t0: Double, to t1: Double) -> Bool {
-        layout.placed.contains { p in
+        layout.placed.filter { !FurnitureCatalog.wallMounted.contains($0.category ?? "") }.contains { p in
             let corners = RoomRenderer.outline(p).map { (t: ($0 - wall.start).dot(wall.direction), out: ($0 - wall.start).dot(wall.inwardNormal)) }
             guard let near = corners.map(\.out).min(), near < 0.25, corners.map(\.out).max() ?? 0 > -0.05 else { return false }
             return corners.map(\.t).min()! < t1 && corners.map(\.t).max()! > t0
@@ -556,8 +557,11 @@ struct RoomDressing {
 
     private func halloweenWalls() {
         let orange = Finish(1, 0.45, 0.05, glow: 1.5), purple = Finish(0.68, 0.25, 1, glow: 1.4)
-        for wall in room.walls where wall.length > 1.2 {
-            stringLights(wall, colours: [orange, purple], cable: Finish(0.04, 0.04, 0.05))
+        // A strand from the catalogue takes over from the drawn ones.
+        if !layout.placed.contains(where: { $0.category == "string_lights" }) {
+            for wall in room.walls where wall.length > 1.2 {
+                stringLights(wall, colours: [orange, purple], cable: Finish(0.04, 0.04, 0.05))
+            }
         }
         // Bats climbing the longest walls, and a web in each corner.
         var seed = 0
@@ -591,7 +595,7 @@ struct RoomDressing {
             b.root.addChildNode(small.root)
             small.pumpkin(0, 0, 0, r * 0.32, carved: true)
         }
-        ghosts()
+        if !layout.placed.contains(where: { $0.category == "ghost" }) { ghosts() }
     }
 
     private func bat(_ b: FurnitureBuilder, x: Double, y: Double, size s: Double, tilt: Double) {
@@ -699,7 +703,7 @@ struct RoomDressing {
     static func openSpots(room: CanonicalRoom, layout: FurnitureLayout, size: Double, wallGap: Double) -> [Point2] {
         let b = room.derived.bounds
         let floor = Shape.inset(room.floorPolygon, by: wallGap)
-        let tall = layout.placed.filter { ($0.height ?? 0) > 1.3 }.map(RoomRenderer.outline)
+        let tall = layout.placed.filter { ($0.height ?? 0) > 1.3 && !FurnitureCatalog.wallMounted.contains($0.category ?? "") }.map(RoomRenderer.outline)
         var found: [Point2] = []
         for x in stride(from: b.centre.x - b.width * 0.36, through: b.centre.x + b.width * 0.36, by: b.width * 0.24) {
             for z in stride(from: b.centre.z - b.depth * 0.34, through: b.centre.z + b.depth * 0.34, by: b.depth * 0.34) {
@@ -713,8 +717,10 @@ struct RoomDressing {
 
     /// Every piece's footprint with its clearances, and each door's keep-clear zone.
     static func blockedShapes(_ room: CanonicalRoom, _ layout: FurnitureLayout) -> [[Point2]] {
-        var out = layout.placed.map(RoomRenderer.outline)
-        let specs = layout.placed.map { p -> [[Point2]] in
+        // What hangs on a wall takes no floor.
+        let standing = layout.placed.filter { !FurnitureCatalog.wallMounted.contains($0.category ?? "") }
+        var out = standing.map(RoomRenderer.outline)
+        let specs = standing.map { p -> [[Point2]] in
             let d = p.footprint.count > 1 ? p.footprint[1] : 0
             return [Solver.localRect(p.x, p.z, p.rotation, (-(p.footprint.first ?? 0) / 2, (p.footprint.first ?? 0) / 2, d / 2, d / 2 + 0.5))]
         }

@@ -72,8 +72,10 @@ public enum DesignStudio {
         let id = Library.free(entry.category, taken: Set(option.plan.items.map(\.itemID))).replacingOccurrences(of: " ", with: "_")
         var rules: [PlacementRule] = []
         let placedIDs = Set(option.layout.placed.map(\.itemID))
-        let wallPieces: Set<String> = ["bed", "sofa", "wardrobe", "desk", "dresser", "bookshelf", "storage", "tv_stand"]
-        let companions: Set<String> = ["nightstand", "side_table", "lamp", "plant", "chair", "coffee_table", "armchair"]
+        // Wall decor is in neither set: it goes centred on the longest wall that takes it, the last resort below.
+        let wallPieces: Set<String> = ["bed", "sofa", "wardrobe", "desk", "dresser", "bookshelf", "storage", "tv_stand", "coffin", "fence", "cobweb", "tree"]
+        let companions: Set<String> = ["nightstand", "side_table", "lamp", "plant", "chair", "coffee_table", "armchair", "jack_o_lantern", "curio",
+                                       "gore", "prop_light", "candelabra", "cauldron", "fog_machine", "spider", "projector"]
         if companions.contains(entry.category), let main = option.plan.items.first(where: { wallPieces.contains($0.category) && placedIDs.contains($0.itemID) }) {
             rules += [.beside(targetItemID: main.itemID, side: "left", gap: 0.05), .beside(targetItemID: main.itemID, side: "right", gap: 0.05)]
         }

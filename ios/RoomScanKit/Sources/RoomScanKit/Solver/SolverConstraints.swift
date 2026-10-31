@@ -40,16 +40,25 @@ extension Solver {
         height > zone.sill + config.windowHeightTolerance
     }
 
+    /// True for a prop that hangs on the wall (a poster, a neon sign, a strand of lights).
+    static func hangsOnWall(_ spec: ItemSpec) -> Bool { FurnitureCatalog.wallMounted.contains(spec.category) }
+
+    /// One of the pair hangs on the wall and the other stands on the floor, so they can never be in each other's
+    /// way: a poster over the sofa neither overlaps it nor takes the space needed to sit down. Two that both hang
+    /// are still compared, and wall decor still has to stay off door and window zones.
+    static func atDifferentHeights(_ a: ItemSpec, _ b: ItemSpec) -> Bool { hangsOnWall(a) != hangsOnWall(b) }
+
     /// Which cheap constraints placement `p` breaks against the room and `others`.
     static func failedConstraints(_ geom: RoomGeom, _ p: Placement, _ others: [Placement], _ config: SolverConfig) -> Set<String> {
         var out = Set<String>()
         if !Shape.covers(geom.inner, p.core) { out.insert(inside) }
         if geom.doorZones.contains(where: { Shape.intersects(p.core, $0.polygon) }) { out.insert(door) }
-        if geom.windowZones.contains(where: { isTall(p.spec.height, $0, config) && Shape.intersects(p.core, $0.polygon) }) {
+        if geom.windowZones.contains(where: { (hangsOnWall(p.spec) || isTall(p.spec.height, $0, config)) && Shape.intersects(p.core, $0.polygon) }) {
             out.insert(window)
         }
         if p.zoneCores.contains(where: { !Shape.covers(geom.inner, $0) }) { out.insert(clearance) }
         for other in others {
+            if atDifferentHeights(p.spec, other.spec) { continue }
             if !out.contains(overlap), Shape.intersects(p.core, other.core) { out.insert(overlap) }
             if related(p.spec, other.spec) { continue }
             if !out.contains(blocksClearance), other.zoneCores.contains(where: { Shape.intersects(p.core, $0) }) {
@@ -70,13 +79,14 @@ extension Solver {
         for zone in geom.doorZones where Shape.intersects(p.core, zone.polygon) {
             out.append((door, "\(name) stands in the space that must stay clear at \(zone.openingID)"))
         }
-        for zone in geom.windowZones where isTall(p.spec.height, zone, config) && Shape.intersects(p.core, zone.polygon) {
+        for zone in geom.windowZones where (hangsOnWall(p.spec) || isTall(p.spec.height, zone, config)) && Shape.intersects(p.core, zone.polygon) {
             out.append((window, "\(name) is \(String(format: "%.2f", p.spec.height)) m tall and stands in front of window \(zone.openingID)"))
         }
         if p.zoneCores.contains(where: { !Shape.covers(geom.inner, $0) }) {
             out.append((clearance, "the space needed to use \(name) runs into a wall"))
         }
         for other in others {
+            if atDifferentHeights(p.spec, other.spec) { continue }
             let otherName = other.spec.item.name.isEmpty ? other.spec.id : other.spec.item.name
             if Shape.intersects(p.core, other.core) { out.append((overlap, "\(name) overlaps \(otherName)")) }
             if related(p.spec, other.spec) { continue }
@@ -226,7 +236,8 @@ extension Solver {
     /// placed by their own rule are targets.
     static func walkwayUnreached(_ geom: RoomGeom, _ walkway: Walkway, _ placements: [Placement], _ doors: [KeepClearZone],
                                  _ radius: Double, primaryOnly: Bool = false) -> [WalkwayTarget] {
-        let ordered = placements.sorted { $0.spec.id < $1.spec.id }
+        // Wall decor hangs above the floor: it stands in nobody's way and nobody needs to reach it.
+        let ordered = placements.filter { !hangsOnWall($0.spec) }.sorted { $0.spec.id < $1.spec.id }
         var targets = doors.map { WalkwayTarget(itemID: nil, openingID: $0.openingID, shapes: [$0.polygon]) }
         targets += ordered.filter { !$0.access.isEmpty && !(primaryOnly && $0.spec.targetID != nil) }
             .map { WalkwayTarget(itemID: $0.spec.id, openingID: nil, shapes: $0.access) }

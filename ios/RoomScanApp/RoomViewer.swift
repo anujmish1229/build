@@ -125,14 +125,17 @@ struct ProductCard: View {
                 Button(action: close) { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
                     .accessibilityLabel("Close")
             }
-            Text([entry?.store, entry?.priceText].compactMap { $0 }.joined(separator: " · ")).font(.subheadline).foregroundStyle(.secondary)
+            Text([entry?.shopLabel, entry?.priceText].compactMap { $0 }.joined(separator: " · ")).font(.subheadline).foregroundStyle(.secondary)
             if let original = entry?.originalPriceText { Text("Store price: \(original)").font(.caption).foregroundStyle(.secondary) }
             Text(size).font(.footnote).foregroundStyle(.secondary)
             if Season.isDecoration(piece.category) { Text("A decoration, not for sale.").font(.footnote).foregroundStyle(.secondary) }
             if let note = entry?.note { Text(note).font(.footnote).foregroundStyle(.orange) }
-            if let url = entry?.url {
+            if let propText = entry?.propText { Text(propText).font(.footnote).foregroundStyle(.secondary) }
+            if let retailers = entry?.retailersText, entry?.searchesForBuyers == true { Text(retailers).font(.footnote).foregroundStyle(.secondary) }
+            if let url = entry?.shopURL ?? (Season.isDecoration(piece.category) ? CatalogEntry.shoppingSearch(piece.name ?? piece.itemID) : nil) {
                 Button { openURL(url) } label: {
-                    Label("View in store", systemImage: "arrow.up.right.square").frame(maxWidth: .infinity)
+                    Label(entry?.searchesForBuyers == false ? "View in store" : "Find one on Google Shopping",
+                          systemImage: entry?.searchesForBuyers == false ? "arrow.up.right.square" : "magnifyingglass").frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.pumpkin)
                 .padding(.top, 4)
@@ -170,7 +173,7 @@ struct ObjectSceneView: UIViewRepresentable {
         // Full-height walls, with the ones between the camera and the room hidden as it moves, so the room can be
         // seen into from any angle and what hangs on the walls stays in view.
         let scene = RoomScene.make(room, layout, colours: colours, wallPaint: wallPaint, products: products, style: style)
-        RoomScene.addLights(to: scene, room: room, style: style)
+        RoomScene.addLights(to: scene, room: room, style: style, layout: layout)
         let start = RoomScene.viewpoint(room, layout: layout, fieldOfView: 58)
         let camera = SCNNode()
         camera.camera = SCNCamera()
@@ -245,9 +248,13 @@ struct ARRoomView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> ARSCNView {
         let view = ARSCNView()
-        view.automaticallyUpdatesLighting = true
-        view.autoenablesDefaultLighting = true
-        view.scene = SCNScene()
+        let scene = SCNScene()
+        view.scene = scene
+        // A lit layout needs the dark: ARKit's estimate of the real room's light would wash the glow out.
+        let night = RoomScene.isLit(layout)
+        view.automaticallyUpdatesLighting = !night
+        view.autoenablesDefaultLighting = !night
+        if night { RoomScene.addLights(to: scene, room: room, style: style, layout: layout) }
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = [.horizontal]
         view.session.run(configuration)

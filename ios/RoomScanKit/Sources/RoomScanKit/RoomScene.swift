@@ -42,12 +42,33 @@ public enum RoomScene {
         for node in walls(room, paint, cutaway: cutaway, season: Season.of(style: style)) { root.addChildNode(node) }
         let known = FurnitureCatalog(entries: products).merged(with: catalog)
         for placed in layout?.placed ?? [] {
-            root.addChildNode(furniture(placed, entry: known.entry(placed.catalogID), style: style))
+            let piece = furniture(placed, entry: known.entry(placed.catalogID), style: style)
+            if FurnitureCatalog.wallMounted.contains(placed.category ?? "") || placed.category == "cobweb", let wall = nearestWall(placed, in: room) {
+                // What hangs on a wall hides along with it; a tap still finds the piece inside.
+                let holder = SCNNode()
+                holder.name = wallPartPrefix + wall.id
+                holder.addChildNode(piece)
+                root.addChildNode(holder)
+            } else {
+                root.addChildNode(piece)
+            }
         }
         if let layout, !layout.placed.isEmpty {
             root.addChildNode(RoomDressing(room: room, layout: layout, style: style, tallWalls: cutaway == nil).build())
         }
         return scene
+    }
+
+    static func nearestWall(_ p: FurnitureLayout.Placed, in room: CanonicalRoom) -> Wall? {
+        room.walls.min { PlanMath.distance(Point2(p.x, p.z), toSegment: $0.start, $0.end) < PlanMath.distance(Point2(p.x, p.z), toSegment: $1.start, $1.end) }
+    }
+
+    /// The kinds of prop that light themselves. Their glow only reads in the dark, so a layout holding any is drawn at night.
+    public static let litCategories: Set<String> = ["neon_sign", "led_strip", "string_lights", "projector", "prop_light"]
+
+    /// True when the layout holds a prop that lights up, so the room wants night, not noon.
+    public static func isLit(_ layout: FurnitureLayout?) -> Bool {
+        layout?.placed.contains { litCategories.contains($0.category ?? "") } ?? false
     }
 
     /// Where to look at a room from: above and at an angle, on the side that sees the fronts of its biggest
@@ -106,8 +127,10 @@ public enum RoomScene {
     }
 
     /// The light for a design: soft shadows and a gentle fill, warmer and dimmer for a holiday evening.
-    public static func addLights(to scene: SCNScene, room: CanonicalRoom, style: DesignStyle?) {
-        let season = Season.of(style: style)
+    public static func addLights(to scene: SCNScene, room: CanonicalRoom, style: DesignStyle?, layout: FurnitureLayout? = nil) {
+        // Neon needs the dark whatever the theme: Christmas keeps its own evening, anything else gets Halloween's.
+        var season = Season.of(style: style)
+        if season == nil && isLit(layout) { season = .halloween }
         let span = max(room.derived.bounds.width, room.derived.bounds.depth, 2)
         let sun = SCNNode()
         let light = SCNLight()
@@ -192,7 +215,7 @@ public enum RoomScene {
         camera.position = view.eye
         camera.look(at: view.target)
         scene.rootNode.addChildNode(camera)
-        addLights(to: scene, room: room, style: style)
+        addLights(to: scene, room: room, style: style, layout: layout)
         guard let device = MTLCreateSystemDefaultDevice() else { return nil }
         let renderer = SCNRenderer(device: device, options: nil)
         renderer.scene = scene
@@ -336,6 +359,13 @@ public enum RoomScene {
     /// A piece drawn at its real size in a form that suits it. Its origin is the middle of its footprint on the floor.
     static func furniture(_ p: FurnitureLayout.Placed, entry: CatalogEntry? = nil, style: DesignStyle? = nil) -> SCNNode {
         let category = entry?.category ?? p.category ?? ""
+        if let entry, entry.isProp {
+            let holder = HalloweenPropBuilder(entry: entry, w: p.footprint.first ?? 0.1, d: p.footprint.count > 1 ? p.footprint[1] : 0.1, h: p.height ?? 0.5).build()
+            holder.name = itemPrefix + p.itemID
+            holder.position = SCNVector3(Float(p.x), 0, Float(p.z))
+            holder.eulerAngles = SCNVector3(0, Float(p.rotation * .pi / 180), 0)
+            return holder
+        }
         let look = ResolvedLook(entry: entry, name: entry?.name ?? p.name ?? "", category: category, style: style)
         let builder = FurnitureBuilder(w: p.footprint.first ?? 0.1, d: p.footprint.count > 1 ? p.footprint[1] : 0.1, h: p.height ?? 0.5,
                                        category: category, look: look, season: Season.of(style: style))

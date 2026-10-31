@@ -1,0 +1,2036 @@
+{
+ "catalog_version": 2,
+ "updated": "2026-10-31",
+ "currency": "USD",
+ "note": "Halloween props, sold everywhere rather than in one region. The first thirteen come from the purchasable Halloween prop dataset and the thirteen with decor_ ids from the posters, LED lighting and ambient decor dataset (sizes converted from inches, prices their average US retail); the rest are ours. None of them has a product page to link to, so tapping one searches Google Shopping for its name.",
+ "items": [
+  {
+   "catalog_id": "prop_anim_001",
+   "name": "12-Ft Giant Posable Skeleton",
+   "category": "skeleton",
+   "size": [
+    1.83,
+    1.22,
+    3.66
+   ],
+   "price": 299.0,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "graveyard",
+    "skeleton",
+    "giant",
+    "outdoor",
+    "lighted"
+   ],
+   "clearance": {
+    "front": 0.8,
+    "sides": 0.6
+   },
+   "look": {
+    "body": "bone",
+    "form": "giant",
+    "details": [
+     "glowing-eyes",
+     "posable"
+    ]
+   },
+   "common_retailers": [
+    "Home Depot",
+    "Spirit Halloween"
+   ],
+   "power_source": "Plug-in (C7 adapter)",
+   "activation_type": "Continuous / light-up eyes",
+   "note": "Twelve feet tall: it needs a 3.7 m ceiling, so it is really a lawn prop."
+  },
+  {
+   "catalog_id": "prop_anim_002",
+   "name": "6-Ft Animated Lurching Reaper",
+   "category": "reaper",
+   "size": [
+    0.76,
+    0.66,
+    1.83
+   ],
+   "price": 189.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "gothic",
+    "animatronic",
+    "reaper",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0.9,
+    "sides": 0.4
+   },
+   "look": {
+    "body": "charcoal",
+    "upholstery": "black",
+    "form": "reaper",
+    "details": [
+     "animated",
+     "hooded"
+    ]
+   },
+   "common_retailers": [
+    "Spirit Halloween",
+    "Party City"
+   ],
+   "power_source": "Plug-in / AA batteries",
+   "activation_type": "Motion sensor / step pad",
+   "note": "Lurches forward when someone walks past, so leave it room in front."
+  },
+  {
+   "catalog_id": "prop_anim_003",
+   "name": "Crouching Zombie Groundbreaker",
+   "category": "groundbreaker",
+   "size": [
+    0.91,
+    0.51,
+    0.46
+   ],
+   "price": 49.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "graveyard",
+    "zombie",
+    "gore",
+    "animatronic",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.5,
+    "sides": 0.2
+   },
+   "look": {
+    "body": "corpse",
+    "form": "zombie",
+    "details": [
+     "animated"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Target",
+    "Walmart"
+   ],
+   "power_source": "3x AA batteries",
+   "activation_type": "Sound / motion sensor"
+  },
+  {
+   "catalog_id": "prop_anim_004",
+   "name": "Life-Size Animated Floating Ghost",
+   "category": "ghost",
+   "size": [
+    1.02,
+    0.38,
+    1.73
+   ],
+   "price": 129.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "ghost",
+    "animatronic",
+    "hanging",
+    "lighted",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0.4,
+    "sides": 0.3
+   },
+   "look": {
+    "body": "cheesecloth",
+    "form": "floating",
+    "details": [
+     "animated",
+     "hanging",
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Halloween City",
+    "Spirit Halloween"
+   ],
+   "power_source": "4x AA batteries / adapter",
+   "activation_type": "Motion sensor",
+   "note": "Hangs from a hook or a branch; it is shown here floating at head height."
+  },
+  {
+   "catalog_id": "prop_stat_001",
+   "name": "Weathered Resin Tombstone (RIP)",
+   "category": "tombstone",
+   "size": [
+    0.46,
+    0.08,
+    0.76
+   ],
+   "price": 24.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "graveyard",
+    "tombstone",
+    "classic",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.3
+   },
+   "look": {
+    "body": "stone",
+    "form": "slab",
+    "details": [
+     "weathered",
+     "engraved"
+    ]
+   },
+   "common_retailers": [
+    "Home Depot",
+    "Lowe's",
+    "Target"
+   ],
+   "activation_type": "Passive"
+  },
+  {
+   "catalog_id": "prop_stat_002",
+   "name": "5-Ft Poseable Human Plastic Skeleton",
+   "category": "skeleton",
+   "size": [
+    0.38,
+    0.2,
+    1.52
+   ],
+   "price": 39.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "skeleton",
+    "classic",
+    "graveyard",
+    "gothic"
+   ],
+   "clearance": {
+    "front": 0.4,
+    "sides": 0.3
+   },
+   "look": {
+    "body": "bone",
+    "form": "standing",
+    "details": [
+     "posable"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Target",
+    "Party City"
+   ],
+   "activation_type": "Passive"
+  },
+  {
+   "catalog_id": "prop_stat_003",
+   "name": "Cast Iron Style Witch Cauldron (Large)",
+   "category": "cauldron",
+   "size": [
+    0.51,
+    0.51,
+    0.41
+   ],
+   "price": 34.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "witch",
+    "cauldron",
+    "gothic",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0.3,
+    "sides": 0.2
+   },
+   "look": {
+    "body": "black metal",
+    "form": "cauldron",
+    "details": [
+     "footed"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Spirit Halloween"
+   ],
+   "activation_type": "Passive",
+   "note": "Moulded plastic, so it is light enough to fill with sweets rather than water."
+  },
+  {
+   "catalog_id": "prop_stat_004",
+   "name": "Life-Size Severed Latex Arm",
+   "category": "gore",
+   "size": [
+    0.13,
+    0.48,
+    0.1
+   ],
+   "price": 14.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "gore",
+    "creepy",
+    "zombie"
+   ],
+   "clearance": {
+    "front": 0.15
+   },
+   "look": {
+    "body": "latex",
+    "form": "arm",
+    "details": [
+     "bloody"
+    ]
+   },
+   "common_retailers": [
+    "Spirit Halloween",
+    "Amazon"
+   ],
+   "activation_type": "Passive"
+  },
+  {
+   "catalog_id": "prop_eff_001",
+   "name": "400W Fog Machine with Wireless Remote",
+   "category": "fog_machine",
+   "size": [
+    0.13,
+    0.13,
+    0.23
+   ],
+   "price": 39.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "fog",
+    "atmosphere",
+    "haunt"
+   ],
+   "clearance": {
+    "front": 0.6,
+    "sides": 0.3
+   },
+   "look": {
+    "body": "black metal",
+    "form": "fogger",
+    "details": [
+     "vented"
+    ]
+   },
+   "common_retailers": [
+    "Spirit Halloween",
+    "Amazon",
+    "Walmart"
+   ],
+   "power_source": "Plug-in (120V)",
+   "activation_type": "Remote control / timer",
+   "note": "Keep the nozzle clear: 400 W fills a room fast."
+  },
+  {
+   "catalog_id": "prop_eff_002",
+   "name": "Flickering Flame LED Fire Spot Light",
+   "category": "prop_light",
+   "size": [
+    0.1,
+    0.08,
+    0.2
+   ],
+   "price": 19.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "atmosphere",
+    "fire",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.2
+   },
+   "look": {
+    "body": "charcoal",
+    "form": "flame",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Home Depot",
+    "Lowe's"
+   ],
+   "power_source": "Plug-in (AC)",
+   "activation_type": "Continuous"
+  },
+  {
+   "catalog_id": "own_strobe_purple",
+   "name": "Purple LED Strobe Flood Light",
+   "category": "prop_light",
+   "size": [
+    0.16,
+    0.13,
+    0.22
+   ],
+   "price": 24.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "atmosphere",
+    "strobe",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.2
+   },
+   "look": {
+    "body": "charcoal",
+    "form": "strobe",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "prop_eff_003",
+   "name": "Low-Lying Water Fogger Chill Box Attachment",
+   "category": "fog_machine",
+   "size": [
+    0.51,
+    0.25,
+    0.3
+   ],
+   "price": 29.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "fog",
+    "atmosphere",
+    "haunt",
+    "graveyard"
+   ],
+   "clearance": {
+    "front": 0.5,
+    "sides": 0.2
+   },
+   "look": {
+    "body": "charcoal",
+    "form": "chiller",
+    "details": [
+     "vented"
+    ]
+   },
+   "common_retailers": [
+    "Spirit Halloween",
+    "Amazon"
+   ],
+   "power_source": "N/A (uses ice)",
+   "activation_type": "Passive",
+   "note": "Takes ice and the fogger's hose; it makes the fog crawl along the floor."
+  },
+  {
+   "catalog_id": "prop_pump_001",
+   "name": "Lighted Blow-Mold Jack-o'-Lantern",
+   "category": "jack_o_lantern",
+   "size": [
+    0.3,
+    0.3,
+    0.36
+   ],
+   "price": 19.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "pumpkin",
+    "lighted",
+    "classic",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.2
+   },
+   "look": {
+    "body": "pumpkin",
+    "form": "blowmold",
+    "details": [
+     "lit",
+     "carved"
+    ]
+   },
+   "common_retailers": [
+    "Home Depot",
+    "Target",
+    "Walmart"
+   ],
+   "power_source": "Plug-in (C7 bulb included)",
+   "activation_type": "Continuous"
+  },
+  {
+   "catalog_id": "prop_pump_002",
+   "name": "Talking Animated Pumpkin (Jabberin' Jack)",
+   "category": "jack_o_lantern",
+   "size": [
+    0.25,
+    0.25,
+    0.28
+   ],
+   "price": 49.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "pumpkin",
+    "animatronic",
+    "lighted",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0.3
+   },
+   "look": {
+    "body": "pumpkin",
+    "form": "talking",
+    "details": [
+     "lit",
+     "animated",
+     "carved"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Mindscope",
+    "Target"
+   ],
+   "power_source": "USB / plug-in",
+   "activation_type": "Continuous / button trigger",
+   "note": "A short-throw projector inside animates its face."
+  },
+  {
+   "catalog_id": "own_skeleton_dog",
+   "name": "Poseable Skeleton Dog",
+   "category": "skeleton",
+   "size": [
+    0.62,
+    0.26,
+    0.52
+   ],
+   "price": 34.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "skeleton",
+    "graveyard",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0.3,
+    "sides": 0.2
+   },
+   "look": {
+    "body": "bone",
+    "form": "dog",
+    "details": [
+     "posable"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_witch_standing",
+   "name": "Life-Size Standing Witch with Broom",
+   "category": "reaper",
+   "size": [
+    0.8,
+    0.6,
+    1.75
+   ],
+   "price": 119.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "witch",
+    "gothic",
+    "classic",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0.6,
+    "sides": 0.4
+   },
+   "look": {
+    "body": "charcoal",
+    "upholstery": "purple",
+    "form": "witch",
+    "details": [
+     "hooded"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_scarecrow",
+   "name": "Burlap Scarecrow with Lantern",
+   "category": "reaper",
+   "size": [
+    0.9,
+    0.55,
+    1.68
+   ],
+   "price": 69.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "scarecrow",
+    "harvest",
+    "creepy",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.5,
+    "sides": 0.4
+   },
+   "look": {
+    "body": "straw",
+    "upholstery": "canvas",
+    "form": "scarecrow",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_tombstone_cross",
+   "name": "Weathered Celtic Cross Headstone",
+   "category": "tombstone",
+   "size": [
+    0.55,
+    0.12,
+    0.95
+   ],
+   "price": 29.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "graveyard",
+    "tombstone",
+    "gothic",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.3
+   },
+   "look": {
+    "body": "stone",
+    "form": "cross",
+    "details": [
+     "weathered",
+     "mossy"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_tombstone_obelisk",
+   "name": "Cracked Stone Obelisk Monument",
+   "category": "tombstone",
+   "size": [
+    0.36,
+    0.36,
+    1.32
+   ],
+   "price": 49.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "graveyard",
+    "tombstone",
+    "gothic",
+    "monument"
+   ],
+   "clearance": {
+    "front": 0.3,
+    "sides": 0.2
+   },
+   "look": {
+    "body": "stone",
+    "form": "obelisk",
+    "details": [
+     "weathered",
+     "cracked"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_cauldron_fog",
+   "name": "Fogging Witch Cauldron with Green Lights",
+   "category": "cauldron",
+   "size": [
+    0.56,
+    0.56,
+    0.72
+   ],
+   "price": 59.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "witch",
+    "cauldron",
+    "fog",
+    "lighted"
+   ],
+   "clearance": {
+    "front": 0.4,
+    "sides": 0.3
+   },
+   "look": {
+    "body": "black metal",
+    "form": "fogging",
+    "details": [
+     "lit",
+     "footed"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_pumpkin_stack",
+   "name": "Carvable Pumpkin Stack (set of three)",
+   "category": "jack_o_lantern",
+   "size": [
+    0.46,
+    0.46,
+    0.82
+   ],
+   "price": 39.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "pumpkin",
+    "harvest",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0.3,
+    "sides": 0.2
+   },
+   "look": {
+    "body": "pumpkin",
+    "form": "stack",
+    "details": [
+     "carved"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_coffin_standing",
+   "name": "Standing Wooden Coffin Prop (6 ft)",
+   "category": "coffin",
+   "size": [
+    0.72,
+    0.32,
+    1.9
+   ],
+   "price": 149.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "coffin",
+    "vampire",
+    "gothic",
+    "graveyard"
+   ],
+   "clearance": {
+    "front": 0.7,
+    "sides": 0.3
+   },
+   "look": {
+    "body": "dark brown",
+    "hardware": "iron",
+    "form": "standing",
+    "details": [
+     "weathered"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_spider_giant",
+   "name": "Giant Poseable Hairy Spider",
+   "category": "spider",
+   "size": [
+    1.2,
+    1.2,
+    0.36
+   ],
+   "price": 44.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "spider",
+    "creepy",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.1,
+    "sides": 0.05
+   },
+   "look": {
+    "body": "black",
+    "form": "giant",
+    "details": [
+     "posable",
+     "hairy"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_cobweb_corner",
+   "name": "Stretch Cobweb Corner Web with Spiders",
+   "category": "cobweb",
+   "size": [
+    1.5,
+    0.1,
+    1.5
+   ],
+   "price": 12.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "spider",
+    "cobweb",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0.05
+   },
+   "look": {
+    "body": "cheesecloth",
+    "form": "web"
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_bats_hanging",
+   "name": "Hanging Bat Cluster (set of three)",
+   "category": "cobweb",
+   "size": [
+    0.95,
+    0.35,
+    0.55
+   ],
+   "price": 18.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "bats",
+    "hanging",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0.2
+   },
+   "look": {
+    "body": "black",
+    "form": "bats",
+    "details": [
+     "hanging"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_candelabra",
+   "name": "Dripping-Wax Flameless Candelabra",
+   "category": "candelabra",
+   "size": [
+    0.42,
+    0.2,
+    0.78
+   ],
+   "price": 39.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "gothic",
+    "candles",
+    "lighted",
+    "witch"
+   ],
+   "clearance": {
+    "front": 0.3
+   },
+   "look": {
+    "body": "wrought iron",
+    "form": "candelabra",
+    "details": [
+     "lit",
+     "dripping"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_chandelier_cobweb",
+   "name": "Cobwebbed Candle Chandelier",
+   "category": "candelabra",
+   "size": [
+    0.62,
+    0.62,
+    0.78
+   ],
+   "price": 89.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "gothic",
+    "candles",
+    "hanging",
+    "haunted"
+   ],
+   "clearance": {
+    "front": 0.2,
+    "sides": 0.2
+   },
+   "look": {
+    "body": "wrought iron",
+    "form": "chandelier",
+    "details": [
+     "lit",
+     "hanging",
+     "cobwebbed"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_skull_resin",
+   "name": "Oversized Resin Skull Centrepiece",
+   "category": "curio",
+   "size": [
+    0.3,
+    0.36,
+    0.28
+   ],
+   "price": 29.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "skull",
+    "gothic",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0.15
+   },
+   "look": {
+    "body": "bone",
+    "form": "skull",
+    "details": [
+     "weathered"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_raven_perched",
+   "name": "Perched Black Feathered Raven",
+   "category": "curio",
+   "size": [
+    0.14,
+    0.32,
+    0.3
+   ],
+   "price": 14.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "raven",
+    "gothic",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0.15
+   },
+   "look": {
+    "body": "black",
+    "form": "raven",
+    "details": [
+     "feathered"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_potion_bottles",
+   "name": "Apothecary Potion Bottle Set (nine bottles)",
+   "category": "curio",
+   "size": [
+    0.58,
+    0.2,
+    0.42
+   ],
+   "price": 32.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "witch",
+    "potions",
+    "apothecary",
+    "lighted"
+   ],
+   "clearance": {
+    "front": 0.2
+   },
+   "look": {
+    "body": "smoked glass",
+    "form": "potions",
+    "details": [
+     "lit",
+     "labelled"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_fence_iron",
+   "name": "Wrought-Iron Graveyard Fence Panel",
+   "category": "fence",
+   "size": [
+    1.22,
+    0.1,
+    0.92
+   ],
+   "price": 24.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "graveyard",
+    "fence",
+    "gothic",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.15
+   },
+   "look": {
+    "body": "wrought iron",
+    "form": "iron",
+    "details": [
+     "spiked",
+     "rusted"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_tree_bare",
+   "name": "Bare Twisted Halloween Tree with Lights",
+   "category": "tree",
+   "size": [
+    1.15,
+    1.15,
+    2.1
+   ],
+   "price": 79.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "graveyard",
+    "tree",
+    "lighted",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0.15,
+    "sides": 0.1
+   },
+   "look": {
+    "body": "black-brown",
+    "form": "bare",
+    "details": [
+     "lit",
+     "twisted"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "decor_post_001",
+   "name": "Classic Horror Movie Collage Poster (1930s-1980s)",
+   "category": "poster",
+   "size": [
+    0.61,
+    0.03,
+    0.91
+   ],
+   "price": 11.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "movie",
+    "monster",
+    "vintage",
+    "classic"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "paper",
+    "form": "movie"
+   },
+   "common_retailers": [
+    "Trends International",
+    "Amazon",
+    "Spencer's"
+   ],
+   "activation_type": "Passive",
+   "note": "A glossy offset print at the standard 24 x 36 in frame size; a frame is sold separately."
+  },
+  {
+   "catalog_id": "decor_post_002",
+   "name": "Vintage Botanical Anatomy & Skeleton Art Print",
+   "category": "poster",
+   "size": [
+    0.41,
+    0.04,
+    0.51
+   ],
+   "price": 19.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "canvas",
+    "vintage",
+    "botanical",
+    "skeleton",
+    "gothic"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "canvas",
+    "form": "canvas"
+   },
+   "common_retailers": [
+    "Etsy",
+    "Amazon"
+   ],
+   "activation_type": "Passive",
+   "note": "Textured cotton canvas on a wooden hanger frame, printed to look like faded parchment."
+  },
+  {
+   "catalog_id": "decor_post_003",
+   "name": "Glowing UV Blacklight Skull Poster",
+   "category": "poster",
+   "size": [
+    0.56,
+    0.02,
+    0.86
+   ],
+   "price": 15.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "uv",
+    "blacklight",
+    "skull",
+    "lighted",
+    "neon"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "black",
+    "form": "blacklight",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Spencer's",
+    "Amazon"
+   ],
+   "activation_type": "Passive (glows under a 395 nm blacklight)",
+   "note": "Fluorescent ink and flocked felt: it only glows with a UV blacklight pointed at it."
+  },
+  {
+   "catalog_id": "decor_post_004",
+   "name": "3D Lenticular Changing Picture Frame (Portrait to Monster)",
+   "category": "poster",
+   "size": [
+    0.25,
+    0.04,
+    0.38
+   ],
+   "price": 9.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "lenticular",
+    "portrait",
+    "monster",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "black",
+    "form": "lenticular"
+   },
+   "common_retailers": [
+    "Spirit Halloween",
+    "Party City",
+    "Amazon"
+   ],
+   "activation_type": "Passive (the image shifts as you walk past)",
+   "note": "The portrait turns into a monster from the side; the moulded plastic frame is included."
+  },
+  {
+   "catalog_id": "decor_proj_002",
+   "name": "AtmosFX Digital FX Projection Material & Video Kit",
+   "category": "poster",
+   "size": [
+    1.83,
+    0.03,
+    1.22
+   ],
+   "price": 49.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "projection",
+    "window",
+    "ghost",
+    "lighted"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "cheesecloth",
+    "form": "projection",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "AtmosFX",
+    "Spirit Halloween",
+    "Amazon"
+   ],
+   "activation_type": "Passive (rear-projection screen)",
+   "note": "The screen and eight video scenes only: you project onto it from behind with your own projector."
+  },
+  {
+   "catalog_id": "own_poster_sideshow",
+   "name": "Vintage Sideshow Freak Show Poster",
+   "category": "poster",
+   "size": [
+    0.46,
+    0.03,
+    0.69
+   ],
+   "price": 13.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "vintage",
+    "carnival",
+    "sideshow",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "paper",
+    "form": "movie"
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_poster_moon",
+   "name": "Moon Phases and Ravens Art Print",
+   "category": "poster",
+   "size": [
+    0.51,
+    0.04,
+    0.66
+   ],
+   "price": 17.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "canvas",
+    "moon",
+    "raven",
+    "witch",
+    "gothic"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "canvas",
+    "form": "canvas"
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_poster_asylum",
+   "name": "\"Asylum\" Distressed Tin Sign",
+   "category": "poster",
+   "size": [
+    0.4,
+    0.03,
+    0.3
+   ],
+   "price": 15.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "poster",
+    "wall",
+    "sign",
+    "tin",
+    "asylum",
+    "rusted",
+    "creepy"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "steel",
+    "form": "tin"
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "decor_neon_001",
+   "name": "LED Neon Ghost Wall Sign (Blue/Warm White)",
+   "category": "neon_sign",
+   "size": [
+    0.2,
+    0.04,
+    0.4
+   ],
+   "price": 18.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "neon",
+    "lighted",
+    "wall",
+    "sign",
+    "ghost",
+    "blue",
+    "glow"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "sky blue",
+    "form": "ghost",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Spencer's",
+    "Target"
+   ],
+   "power_source": "USB (5V) or 3x AA batteries",
+   "activation_type": "On/off switch"
+  },
+  {
+   "catalog_id": "decor_neon_002",
+   "name": "\"Enter If You Dare\" Red LED Neon Sign",
+   "category": "neon_sign",
+   "size": [
+    0.42,
+    0.04,
+    0.23
+   ],
+   "price": 34.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "neon",
+    "lighted",
+    "wall",
+    "sign",
+    "text",
+    "red",
+    "glow"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "red",
+    "form": "text",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Etsy"
+   ],
+   "power_source": "USB (5V)",
+   "activation_type": "Dimmable on/off switch"
+  },
+  {
+   "catalog_id": "decor_neon_003",
+   "name": "Green LED Bat Outline Neon Light",
+   "category": "neon_sign",
+   "size": [
+    0.36,
+    0.04,
+    0.18
+   ],
+   "price": 14.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "neon",
+    "lighted",
+    "wall",
+    "sign",
+    "bat",
+    "green",
+    "glow"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "slime green",
+    "form": "bat",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Party City",
+    "Walmart",
+    "Spirit Halloween"
+   ],
+   "power_source": "USB or 3x AA batteries",
+   "activation_type": "On/off switch"
+  },
+  {
+   "catalog_id": "own_neon_pumpkin",
+   "name": "Purple LED Neon Pumpkin Sign",
+   "category": "neon_sign",
+   "size": [
+    0.3,
+    0.04,
+    0.3
+   ],
+   "price": 24.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "neon",
+    "lighted",
+    "wall",
+    "sign",
+    "pumpkin",
+    "purple",
+    "glow"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "purple",
+    "form": "pumpkin",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_neon_boo",
+   "name": "Orange Neon \"BOO\" Sign",
+   "category": "neon_sign",
+   "size": [
+    0.45,
+    0.04,
+    0.2
+   ],
+   "price": 29.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "neon",
+    "lighted",
+    "wall",
+    "sign",
+    "text",
+    "orange",
+    "glow"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "orange",
+    "form": "text",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_neon_skull",
+   "name": "Pink LED Neon Skull Sign",
+   "category": "neon_sign",
+   "size": [
+    0.28,
+    0.04,
+    0.34
+   ],
+   "price": 27.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "neon",
+    "lighted",
+    "wall",
+    "sign",
+    "skull",
+    "pink",
+    "glow"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "pink",
+    "form": "skull",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "decor_light_001",
+   "name": "33ft Orange & Purple Dual-Color LED String Lights",
+   "category": "string_lights",
+   "size": [
+    2.2,
+    0.06,
+    0.35
+   ],
+   "price": 15.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "fairy",
+    "string",
+    "lights",
+    "wall",
+    "orange",
+    "purple",
+    "atmosphere"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "orange",
+    "form": "fairy",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Target",
+    "Walmart"
+   ],
+   "power_source": "3x AA batteries or USB",
+   "activation_type": "8 lighting modes, remote and timer",
+   "note": "Thirty-three feet of wire: the size is the stretch of wall it drapes along."
+  },
+  {
+   "catalog_id": "decor_light_003",
+   "name": "3D Jack-o'-Lantern Pumpkin String Lights",
+   "category": "string_lights",
+   "size": [
+    1.6,
+    0.09,
+    0.26
+   ],
+   "price": 12.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "string",
+    "lights",
+    "fairy",
+    "pumpkin",
+    "wall",
+    "orange"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "pumpkin",
+    "form": "pumpkin",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Target",
+    "Spirit Halloween",
+    "Party City"
+   ],
+   "power_source": "3x AA batteries",
+   "activation_type": "Steady or flashing",
+   "note": "Twenty lights on ten feet of wire: the size is the stretch of wall it drapes along."
+  },
+  {
+   "catalog_id": "decor_light_004",
+   "name": "Purple LED Rope Light Strand",
+   "category": "string_lights",
+   "size": [
+    1.9,
+    0.06,
+    0.1
+   ],
+   "price": 22.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "rope",
+    "string",
+    "lights",
+    "wall",
+    "purple",
+    "atmosphere"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "purple",
+    "form": "rope",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Home Depot",
+    "Lowe's"
+   ],
+   "power_source": "Plug-in (120V)",
+   "activation_type": "Continuous",
+   "note": "Eighteen feet of PVC tubing: the size is the run of wall it is clipped along."
+  },
+  {
+   "catalog_id": "own_lights_ghost",
+   "name": "Ghost-Shaped LED String Lights",
+   "category": "string_lights",
+   "size": [
+    1.5,
+    0.08,
+    0.28
+   ],
+   "price": 16.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "string",
+    "lights",
+    "fairy",
+    "ghost",
+    "wall",
+    "white"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "white",
+    "form": "ghost",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_lights_icicle",
+   "name": "Purple Icicle Drop Lights",
+   "category": "string_lights",
+   "size": [
+    2.0,
+    0.05,
+    0.45
+   ],
+   "price": 21.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "string",
+    "lights",
+    "icicle",
+    "wall",
+    "purple",
+    "atmosphere"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "purple",
+    "form": "icicle",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "decor_light_002",
+   "name": "RGBIC Smart LED Light Strip (Spooky Presets)",
+   "category": "led_strip",
+   "size": [
+    2.4,
+    0.03,
+    0.04
+   ],
+   "price": 39.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "strip",
+    "led",
+    "wall",
+    "smart",
+    "purple",
+    "neon",
+    "atmosphere"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "purple",
+    "form": "rgbic",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Amazon",
+    "Best Buy",
+    "Home Depot"
+   ],
+   "power_source": "Plug-in (12V adapter)",
+   "activation_type": "App, music sync or voice assistant",
+   "note": "Sixteen feet of adhesive strip: the size is the run of wall it is stuck along."
+  },
+  {
+   "catalog_id": "own_strip_uv",
+   "name": "395nm UV Blacklight LED Bar",
+   "category": "led_strip",
+   "size": [
+    0.9,
+    0.07,
+    0.09
+   ],
+   "price": 26.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "uv",
+    "blacklight",
+    "strip",
+    "led",
+    "wall",
+    "purple"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "witch purple",
+    "form": "uv",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "own_strip_green",
+   "name": "Toxic Green LED Cove Strip",
+   "category": "led_strip",
+   "size": [
+    2.0,
+    0.03,
+    0.04
+   ],
+   "price": 18.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "strip",
+    "led",
+    "cove",
+    "wall",
+    "green",
+    "atmosphere"
+   ],
+   "clearance": {
+    "front": 0
+   },
+   "look": {
+    "body": "slime green",
+    "form": "cove",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  },
+  {
+   "catalog_id": "decor_proj_001",
+   "name": "Outdoor Halloween LED Motion Spotlight (Bats & Ghosts)",
+   "category": "projector",
+   "size": [
+    0.13,
+    0.1,
+    0.17
+   ],
+   "price": 27.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "projection",
+    "projector",
+    "gobo",
+    "bats",
+    "ghost",
+    "outdoor"
+   ],
+   "clearance": {
+    "front": 0.3
+   },
+   "look": {
+    "body": "charcoal",
+    "form": "gobo",
+    "details": [
+     "lit"
+    ]
+   },
+   "common_retailers": [
+    "Home Depot",
+    "Lowe's",
+    "Amazon"
+   ],
+   "power_source": "Plug-in (12V outdoor transformer)",
+   "activation_type": "Continuous / rotating patterns",
+   "note": "It throws moving bats and ghosts, so it needs a clear line to the wall you aim it at."
+  },
+  {
+   "catalog_id": "own_proj_purple",
+   "name": "Purple Swirl Gobo Projector",
+   "category": "projector",
+   "size": [
+    0.15,
+    0.12,
+    0.19
+   ],
+   "price": 22.99,
+   "currency": "USD",
+   "styles": [
+    "halloween",
+    "spooky",
+    "haunted",
+    "lighted",
+    "projection",
+    "projector",
+    "gobo",
+    "swirl",
+    "purple",
+    "atmosphere"
+   ],
+   "clearance": {
+    "front": 0.3
+   },
+   "look": {
+    "body": "charcoal",
+    "form": "swirl",
+    "details": [
+     "lit"
+    ]
+   },
+   "note": "Our own prop: the size and price are estimates, so check the listing you buy from."
+  }
+ ]
+}

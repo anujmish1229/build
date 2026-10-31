@@ -15,6 +15,7 @@ The first launch is a good place to start, so delete the app first if you want a
 
 - [ ] **Board:** It shows straight away, and pictures fill in. Try the Bedroom and Japandi filters.
 - [ ] **Holidays:** Tap the Christmas and Halloween filters, or open **Holiday example room** under Rooms. Open each design, then **View in 3D and AR** and orbit.
+- [ ] **Walls and props:** Type `witch's lair lounge` as a theme, keep a layout, and find the neon sign and poster on the walls. Tap a prop in **Pieces** to search for it. Under **Add a piece**, search for something the catalogue doesn't have and tap the Google Shopping row.
 - [ ] **Save:** Open a design, tap **Save to a board**, and create a board.
 - [ ] **Remix:** On the same design, tap **Remix into my room** and pick a sample room. Swipe through the layouts and tap **Use this layout**.
 - [ ] **New design:** Tap the Rooms icon, then **New design** on a sample room. Type `calm japandi bedroom` and tap **Show me layouts**.

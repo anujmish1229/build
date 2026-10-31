@@ -123,7 +123,8 @@ import Testing
     }
 
     @Test(arguments: [("christmas living room", "christmas", "christmas_tree"), ("xmas lounge", "christmas", "christmas_tree"),
-                      ("halloween living room", "halloween", "pumpkins"), ("spooky lounge", "halloween", "pumpkins")])
+                      ("halloween living room", "halloween", "jack_o_lantern"), ("spooky lounge", "halloween", "jack_o_lantern"),
+                      ("graveyard lounge", "halloween", "tombstone"), ("witch's lounge", "halloween", "cauldron")])
     func aHolidayThemeAddsDecorationsLegally(_ theme: String, _ word: String, _ piece: String) async {
         let room = SampleRooms.all[3].room
         let r = await result(room, theme)
@@ -134,6 +135,48 @@ import Testing
         // Decorations aren't products: they have no catalogue entry and add nothing to the price.
         for item in r.plan.items where Season.isDecoration(item.category) { #expect(item.catalogID == nil, "\(item.name)") }
         #expect(r.layout.unplaced.isEmpty)
+    }
+
+    @Test func aHauntHangsThingsOnTheWallsWithoutCostingAnyFurniture() async {
+        let room = SampleRooms.all[3].room
+        let r = await result(room, "halloween living room")
+        let hung = r.layout.placed.filter { FurnitureCatalog.wallMounted.contains($0.category ?? "") }
+        #expect(!hung.isEmpty)
+        #expect(r.layout.placed.contains { $0.category == "sofa" })
+        #expect(LayoutSolver.check(room, r.layout, r.plan, catalog: catalog).isEmpty)
+        // Props are lower priority than every piece of furniture.
+        let furniture = r.plan.items.filter { FurniturePlanner.furnitureCategories.contains($0.category) && $0.priority < FurniturePlanner.extraPriority }
+        #expect(r.plan.items.filter(\.isProp).allSatisfy { p in furniture.allSatisfy { $0.priority < p.priority } })
+    }
+
+    @Test func nothingTallerThanTheRoomIsChosen() async {
+        let r = await result(bedroom, "graveyard bedroom")
+        #expect(r.plan.items.filter(\.isProp).allSatisfy { $0.size[2] <= bedroom.ceilingHeight })
+    }
+
+    @Test func aPropIsFoundBySearchingForItsNameAndASampleIsNot() throws {
+        let prop = try #require(catalog.props.first)
+        let search = try #require(prop.shopURL.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) })
+        #expect(search.host == "www.google.com" && search.queryItems?.contains(URLQueryItem(name: "q", value: prop.name)) == true)
+        #expect(prop.searchesForBuyers && prop.shopLabel == "Google Shopping" && prop.region == nil)
+        #expect(try #require(catalog.entry("sample_bed_queen_oak")).shopURL == nil)
+    }
+
+    @Test func wallDecorSharesTheFloorButNotTheWall() {
+        let room = CanonicalRoom.make(polygon: [Point2(0, 0), Point2(5, 0), Point2(5, 4), Point2(0, 4)])
+        func item(_ id: String, _ category: String, _ size: [Double]) -> FurnitureItem {
+            FurnitureItem(itemID: id, name: id, category: category, size: size, placement: .againstWall(wallID: "w0", align: "center"), priority: 1)
+        }
+        let overSofa = LayoutSolver.solve(room, FurniturePlan(theme: "", items: [item("sofa", "sofa", [2, 0.9, 0.8]), item("p", "poster", [0.6, 0.03, 0.9])]))
+        #expect(overSofa.placed.count == 2)
+        #expect(abs(overSofa.placed[0].x - overSofa.placed[1].x) < 1e-6, "the poster hangs straight above the sofa")
+        let two = LayoutSolver.solve(room, FurniturePlan(theme: "", items: [item("a", "poster", [0.6, 0.03, 0.9]), item("b", "poster", [0.6, 0.03, 0.9])]))
+        // Nothing hangs across a window, however short it is.
+        let windowed = CanonicalRoom.make(polygon: [Point2(0, 0), Point2(5, 0), Point2(5, 4), Point2(0, 4)],
+                                          openings: [Opening(id: "w", type: .window, wallID: "w0", offset: 2, width: 1, height: 1.2, sill: 0.9)])
+        let strand = LayoutSolver.solve(windowed, FurniturePlan(theme: "", items: [item("s", "string_lights", [0.8, 0.05, 0.2])]))
+        #expect(strand.placed.allSatisfy { abs($0.x - 2.5) >= 0.9 || $0.z > 0.5 }, "\(strand.placed)")
+        if two.placed.count == 2 { #expect(abs(two.placed[0].x - two.placed[1].x) >= 0.6 - 1e-6 || abs(two.placed[0].z - two.placed[1].z) > 0.02) }
     }
 
     @Test func aHolidayIsReadWhateverTheModelSays() async {
@@ -153,6 +196,11 @@ import Testing
     @Test func aHolidayThemeSuggestsItsPaint() {
         #expect(WallPaint.suggestions(for: "halloween lounge").first == Season.halloween.paint)
         #expect(WallPaint.suggestions(for: "cosy christmas room").first == Season.christmas.paint)
+        // The design's own accent leads, and walls already that colour aren't asked about.
+        let paints = WallPaint.suggestions(for: "halloween", style: DesignStyle(accents: ["burgundy"]))
+        #expect(paints.first?.name == "burgundy" && paints.contains(Season.halloween.paint))
+        #expect(!WallPaint.worthOffering(paints, over: Season.halloween.paint.hex))
+        #expect(WallPaint.worthOffering(paints, over: "#FFFFFF"))
     }
 
     @Test func colourNamesArePlain() {

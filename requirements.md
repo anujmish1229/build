@@ -225,6 +225,8 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 - **FR-C7** `tools/ikea_kaggle_to_catalog.py` shall convert the Kaggle IKEA dataset into that file. Missing sizes are filled with typical values, and the piece's note says so. The repository holds the converter, never its output.
 - **FR-C8** A product's note (sold separately, estimated size) shall be shown to the buyer on its 3D card.
 - **FR-C9** Tapping a piece or product row shall open its product page in the browser.
+- **FR-C10** A second bundled catalogue (`Resources/halloween.json`) shall hold Halloween props and wall decor: posters, neon signs, string lights and LED strips among them. They name no region and are available whichever catalogue supplies the furniture. A Halloween theme shall add them as extras, choosing a set from its words (graveyard, witch's lair, crypt or haunted house) and nothing taller than the room. What hangs on a wall may share the floor below it with a piece, but not a patch of wall with another hanging piece, nor a door or window.
+- **FR-C11** Anything without one product page shall be findable: tapping it searches Google Shopping for its name and names the shops known to stock it, and a catalogue search with no results offers the same search. Invented sample pieces are excluded, since nobody sells them.
 
 ### 4.12 Regions and prices (FR-Z)
 - **FR-Z1** The user's region shall default to the device's region, and can be changed to any region the catalogue covers.
@@ -239,7 +241,7 @@ Review is optional unless an error stops a layout. It opens from a new room or a
 - **FR-O3** On devices that support it, the AR view shall place the room on a detected floor or table at table size (8%) or real size, with see-through walls, on-screen coaching, and a "Move" action.
 - **FR-O4** Tapping a piece in either view shall show a card with its name, store, price, size and note, with a "View in store" button.
 - **FR-O5** Each piece shall be drawn in code at its real size, in a form that suits its kind and the design's style, in finishes taken from its product data, name or the design's look.
-- **FR-O6** The look shall set what the products don't: bedding, cushions, throws, rugs, lamps and wall decor. It covers named vibes (such as japandi, steampunk, gothic, art deco, boho, industrial), materials and accent colours. Rugs, curtains, pictures, table settings and holiday decoration are worked out from the room and layout when drawn, so they follow every edit, and they are never products. Christmas and Halloween themes also add decorations that the solver places like any piece, with no price.
+- **FR-O6** The look shall set what the products don't: bedding, cushions, throws, rugs, lamps and wall decor. It covers named vibes (such as japandi, steampunk, gothic, art deco, boho, industrial), materials and accent colours. Rugs, curtains, pictures, table settings and holiday decoration are worked out from the room and layout when drawn, so they follow every edit, and they are never products. Christmas themes also add drawn decorations with no price, which the solver places like any piece. Halloween themes add catalogue props (FR-C10), and a layout with a prop that lights up is drawn at night.
 - **FR-O7** The app shall render still pictures of designs on the device for the Board and for sharing, leaving out the walls nearest the camera and art on those walls.
 - **FR-O8** All outputs shall be reproducible from the room, the layout, the look and the products.
 
@@ -593,6 +595,7 @@ Section 12 lists work needed before a public release.
 ### 12.5 Needed before a public release
 - A build that can't contain the IKEA catalogue. The build step in FR-C6 currently runs for every configuration, including Release.
 - Permission to use the 27 built-in products, or a licensed replacement.
+- Confirm the licence of the two datasets behind 26 of the entries in `Resources/halloween.json`. Those entries name retailers and one product brand, and the datasets aren't in this repository.
 - An app icon. `ASSETCATALOG_COMPILER_APPICON_NAME` is empty, and there is no icon in the assets.
 - A privacy manifest (`PrivacyInfo.xcprivacy`) and a privacy policy.
 - The accuracy study, and hands-on device testing of scanning, review, AR and Apple Intelligence.

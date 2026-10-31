@@ -142,12 +142,6 @@ struct FurnitureBuilder {
         case "gift_pile": giftPile()
         case "nutcracker": nutcracker()
         case "reindeer": reindeer()
-        case "pumpkins": pumpkinPatch()
-        case "cauldron": cauldron()
-        case "skeleton": skeleton()
-        case "candelabra": candelabra()
-        case "tombstones": tombstones()
-        case "spooky_tree": spookyTree()
         default: box(0, 0, 0, w, h, d, look.body)
         }
         return root
