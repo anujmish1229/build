@@ -24,11 +24,11 @@
 ## Furniture
 - `size` is `[width, depth, height]`. `x`, `z` give the footprint centre.
 - Rotation is degrees about +Y. At rotation 0 the back faces −z and the front faces +z. Front direction is `(sin θ, cos θ)`, local width axis is `(cos θ, −sin θ)`.
-- `beside` with `side: left` means the target's local −x side.
+- `beside` with `side: left` means the target's own left, which is its local +x side.
 
 ## Clearance (FR-P3)
-- A front clearance zone must lie inside the room and be free of unrelated items. Side zones must be free of unrelated items; a wall may bound them.
-- Related pairs are an item and its `in_front_of` or `beside` target, and siblings sharing that target.
+- Every clearance zone must lie inside the room and be free of unrelated items.
+- Related pairs are an item and its `in_front_of` or `beside` target.
 - The walker "reaches" a zone when its disc overlaps the zone.
 
 ## Code

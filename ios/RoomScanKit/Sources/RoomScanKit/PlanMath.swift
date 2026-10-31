@@ -128,6 +128,26 @@ public enum PlanMath {
         return a + r * t
     }
 
+    public static func round6(_ v: Double) -> Double { (v * 1e6).rounded(.toNearestOrEven) / 1e6 }
+
+    /// The inward normal of a wall running from a to b, or nil when they coincide.
+    public static func inwardNormal(_ a: Point2, _ b: Point2) -> Point2? {
+        let d = b - a
+        return d.length > 1e-12 ? d.normalized.leftNormal : nil
+    }
+
+    /// Turns a point about +Y by degrees: (1, 0) goes to (cos, -sin) and (0, 1) to (sin, cos).
+    public static func rotate(_ p: Point2, degrees: Double) -> Point2 {
+        let t = degrees * .pi / 180, c = cos(t), s = sin(t)
+        return Point2(p.x * c + p.z * s, -p.x * s + p.z * c)
+    }
+
+    /// The way an item faces at a rotation.
+    public static func front(degrees: Double) -> Point2 { rotate(Point2(0, 1), degrees: degrees) }
+
+    /// The rotation in degrees that makes an item face a direction.
+    public static func rotationFacing(_ direction: Point2) -> Double { atan2(direction.x, direction.z) * 180 / .pi }
+
     /// Rounds to a tenth of a millimetre so stored numbers stay readable.
     public static func tidy(_ v: Double) -> Double { (v * 10_000).rounded() / 10_000 }
 }

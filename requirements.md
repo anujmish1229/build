@@ -389,18 +389,18 @@ The scan as it comes from RoomPlan, with `schema_version`, `source`, `captured_a
   "region": "CA",
   "items": [
     {
-      "catalog_id": "ikea_malm_bed_queen",
-      "name": "MALM bed frame, high, dark brown veneer, Queen",
-      "store": "IKEA Canada",
+      "catalog_id": "sample_bed_queen_oak",
+      "name": "Alder queen bed, oak",
+      "store": "RoomScan Samples",
       "category": "bed",
-      "size": [1.68, 2.11, 1.0],
-      "price": 229.0,
+      "size": [1.65, 2.15, 1.0],
+      "price": 899.0,
       "currency": "CAD",
-      "url": "https://www.ikea.com/ca/en/p/-00599452/",
-      "styles": ["modern", "minimalist", "scandinavian"],
+      "url": "https://example.com/alder-queen-bed",
+      "styles": ["japandi", "scandinavian", "warm"],
       "clearance": {"front": 0.6, "sides": 0.5},
-      "note": "Slatted base and mattress sold separately.",
-      "look": {"body": "dark brown", "form": "panel", "details": ["tall"]}
+      "note": "Mattress sold separately.",
+      "look": {"body": "oak", "form": "panel", "details": ["tall"]}
     }
   ]
 }
@@ -626,7 +626,7 @@ Section 12 lists work needed before a public release.
 | 0.7 Library and sharing | Keep multiple rooms and designs, edit them, and send them to others | Shared files open on a second phone, and files from older formats still load |
 | 0.8 Board and remix | The home screen shows inspiration you can refit to your own room | The board appears immediately on first launch, and a remix fits the target room |
 | 0.9 Looks and catalogue | Styled furniture, plus real products, regions and prices | Each style renders properly, and every product's data source is cleared for release |
-| 1.0 Release | Public App Store build | TestFlight testers finish the full flow, and Apple approves it |
+| 1.0 Demo | A signed build on the owner's phone, for demonstration only | The signed device build succeeds, and `docs/DEMO.md` lists the demo steps |
 
 ## Appendix A: Changes from v0.1
 

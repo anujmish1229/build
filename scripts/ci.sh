@@ -11,6 +11,10 @@ if ! xcodebuild -version >/dev/null 2>&1; then
 fi
 xcodebuild -version | head -1
 
+echo "== No personal-use catalogue data in the repository =="
+if git ls-files | grep -E '^catalog-local/' ; then echo "catalog-local must stay out of the repository"; exit 1; fi
+if git ls-files -- '*.json' | xargs grep -il 'ikea' ; then echo "IKEA data must stay out of the repository"; exit 1; fi
+
 echo "== Engine tests =="
 (cd ios/RoomScanKit && swift test -c release -Xswiftc -enable-testing)
 

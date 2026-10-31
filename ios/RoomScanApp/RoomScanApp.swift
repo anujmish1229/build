@@ -34,6 +34,11 @@ struct RootView: View {
                         Button(sample.name) { save(StoredRoom(editable: EditableRoom(room: sample.room))) }
                     }
                 }
+                Section("Fixed furniture list") {
+                    ForEach(SampleRooms.all, id: \.name) { sample in
+                        NavigationLink(sample.name) { SolverDemoView(sample: sample) }
+                    }
+                }
                 if let note { Text(note).font(.footnote) }
             }
             .navigationTitle("RoomScan")
