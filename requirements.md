@@ -2,6 +2,8 @@
 
 Version 0.3 (draft). Date: 2026-10-31.
 
+The goal is a local build to demonstrate on the owner's phone. Publication (TestFlight, App Store, store metadata) is out of scope.
+
 This version replaces v0.2, which described an earlier codebase that is not in this repository. Sections 1 to 8 are now the target for a fresh build in this repository, delivered in the versions listed in section 14. Section 9.3 and section 12 describe the earlier codebase and are kept as a list of what the rebuild must fix; `docs/STATUS.md` holds the state of this repository. Appendix A lists the changes from v0.1.
 
 FR-S, FR-R, FR-D and FR-P keep their v0.1 numbers, with new requirements added. FR-L and FR-O were rewritten, so their numbers don't match v0.1.
