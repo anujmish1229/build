@@ -67,8 +67,8 @@ struct ScanResultView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: "checkmark.circle").font(.largeTitle)
             Text("Found \(raw.summary)").font(.title3.bold()).multilineTextAlignment(.center)
+            ScanSketchView(review: ScanReview(raw: raw)).frame(height: 240)
             Button(action: onContinue) { Text(continueTitle).frame(maxWidth: .infinity) }
                 .buttonStyle(.borderedProminent).controlSize(.large)
             Button("Scan again", action: onRescan)
@@ -78,6 +78,35 @@ struct ScanResultView: View {
             }
         }
         .padding()
+    }
+}
+
+/// A sketch of the scan: orange when a surface is flagged, red when that flag is tapped.
+struct ScanSketchView: View {
+    let review: ScanReview
+    @State private var tapped: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Canvas { ctx, size in
+                let points = review.lines.flatMap { [$0.a, $0.b] }
+                let fit = PlanFit(bounds: PlanMath.bounds(points), width: size.width, height: size.height, padding: 12)
+                for line in review.lines {
+                    let a = fit.screen(line.a), b = fit.screen(line.b)
+                    var path = Path()
+                    path.move(to: CGPoint(x: a.x, y: a.y)); path.addLine(to: CGPoint(x: b.x, y: b.y))
+                    let color: Color = line.id == tapped ? .red : line.flagged ? .orange : (line.kind == "wall" ? .primary : .blue)
+                    ctx.stroke(path, with: .color(color), lineWidth: line.kind == "wall" ? 3 : 5)
+                }
+            }
+            ForEach(review.flags) { flag in
+                Button { tapped = tapped == flag.id ? nil : flag.id } label: {
+                    Label(flag.message ?? "", systemImage: "exclamationmark.triangle")
+                        .font(.footnote)
+                        .foregroundStyle(tapped == flag.id ? .red : .orange)
+                }
+            }
+        }
     }
 }
 
