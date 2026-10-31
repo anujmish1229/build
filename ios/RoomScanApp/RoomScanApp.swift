@@ -34,6 +34,11 @@ struct RootView: View {
                         Button(sample.name) { save(StoredRoom(editable: EditableRoom(room: sample.room))) }
                     }
                 }
+                Section("Design a sample room") {
+                    ForEach(SampleRooms.all, id: \.name) { sample in
+                        NavigationLink(sample.name) { ThemeDesignView(room: sample.room, roomName: sample.name) }
+                    }
+                }
                 Section("Fixed furniture list") {
                     ForEach(SampleRooms.all, id: \.name) { sample in
                         NavigationLink(sample.name) { SolverDemoView(sample: sample) }
