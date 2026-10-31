@@ -13,7 +13,7 @@
 - `walls[i]` runs from `floor_polygon[i]` to `floor_polygon[i+1]`.
 
 ## Canonical pose (FR-D4)
-1. The longest wall (first in loop order on a tie within 1 mm) is rotated to run along +x with the room on its +z side.
+1. The longest wall is rotated to run along +x with the room on its +z side. When walls tie within 2 mm, each is tried and the outline that sorts first (by corner z, then x, rounded to 1 cm) wins, so scan order and pose don't change the result.
 2. The plan is translated so the bounding box minimum is (0, 0).
 3. The loop starts at the corner with the smallest z, then the smallest x.
 
