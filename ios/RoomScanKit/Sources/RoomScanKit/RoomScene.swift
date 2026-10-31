@@ -1,7 +1,13 @@
 #if canImport(SceneKit)
 import CoreGraphics
 import Foundation
+import Metal
 import SceneKit
+#if canImport(UIKit)
+import UIKit
+#else
+import AppKit
+#endif
 
 /// The room in 3D, built from data at real scale in metres, Y up. Each piece's node is
 /// named "item:<item id>", so a tap can be traced back to its product.
@@ -43,6 +49,50 @@ public enum RoomScene {
         let url = dir.appendingPathComponent("\(name).usdz")
         let scene = make(room, layout, colours: colours, wallPaint: wallPaint)
         return scene.write(to: url, options: nil, delegate: nil, progressHandler: nil) ? url : nil
+    }
+
+    /// A still picture from above and in front, leaving out the walls nearest the camera.
+    public static func snapshot(_ room: CanonicalRoom, _ layout: FurnitureLayout?, colours: RoomColours? = nil, wallPaint: String? = nil,
+                                size: CGSize = CGSize(width: 720, height: 900)) -> CGImage? {
+        let scene = make(room, layout, colours: colours, wallPaint: wallPaint)
+        scene.background.contents = CGColor(srgbRed: 0.93, green: 0.91, blue: 0.88, alpha: 1)
+        let b = room.derived.bounds
+        let span = max(b.width, b.depth, 2)
+        let eye = Point2(b.centre.x, b.centre.z + span * 0.95)
+        scene.rootNode.enumerateChildNodes { node, _ in
+            guard let name = node.name, name.hasPrefix("wall:") || name.hasPrefix("opening:") else { return }
+            let id = name.split(separator: ":").last.map(String.init) ?? ""
+            let wallID = name.hasPrefix("wall:") ? id : room.opening(id)?.wallID ?? ""
+            guard let wall = room.wall(wallID) else { return }
+            if wall.inwardNormal.dot(eye - (wall.start + wall.end) * 0.5) < 0 { node.isHidden = true }
+        }
+        let camera = SCNNode()
+        camera.camera = SCNCamera()
+        camera.camera?.fieldOfView = 48
+        camera.position = SCNVector3(Float(eye.x), Float(span * 1.35), Float(eye.z))
+        camera.look(at: SCNVector3(Float(b.centre.x), 0.2, Float(b.centre.z)))
+        scene.rootNode.addChildNode(camera)
+        let sun = SCNNode()
+        sun.light = SCNLight()
+        sun.light?.type = .directional
+        sun.light?.intensity = 850
+        sun.eulerAngles = SCNVector3(-1.05, 0.55, 0)
+        scene.rootNode.addChildNode(sun)
+        let ambient = SCNNode()
+        ambient.light = SCNLight()
+        ambient.light?.type = .ambient
+        ambient.light?.intensity = 520
+        scene.rootNode.addChildNode(ambient)
+        guard let device = MTLCreateSystemDefaultDevice() else { return nil }
+        let renderer = SCNRenderer(device: device, options: nil)
+        renderer.scene = scene
+        renderer.pointOfView = camera
+        let image = renderer.snapshot(atTime: 0, with: size, antialiasingMode: .multisampling4X)
+        #if canImport(UIKit)
+        return image.cgImage
+        #else
+        return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        #endif
     }
 
     static func colour(_ hex: String) -> CGColor {
