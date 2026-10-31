@@ -81,7 +81,7 @@ public enum BoardContents {
     }
 
     public static func minePins(_ library: Library) -> [BoardPin] {
-        library.designs.compactMap { design in
+        library.designs.filter { $0.exampleOf == nil }.compactMap { design in
             library.room(design.roomID).map { BoardPin(id: design.id.uuidString, source: .mine, design: DesignPackage(design, room: $0)) }
         }
     }
@@ -121,7 +121,7 @@ public enum BoardContents {
     }
 }
 
-/// The eight ready-made designs that are on the Board from the first launch. They load from a
+/// The ready-made designs that are on the Board from the first launch. They load from a
 /// file with no solving, however large the catalogue is.
 public enum StarterBoard {
     struct Recipe {
@@ -134,7 +134,10 @@ public enum StarterBoard {
         let floorType: FloorType
     }
 
+    /// The holiday room comes first; both designs share its floor, and each paints the walls its own colour.
     static let recipes = [
+        Recipe(id: "starter-halloween", title: "Haunted Halloween lounge", theme: "halloween living room", room: 3, wall: Season.halloween.paint.hex, floor: "#6B4A32", floorType: .wood),
+        Recipe(id: "starter-christmas", title: "Cosy Christmas living room", theme: "christmas living room", room: 3, wall: Season.christmas.paint.hex, floor: "#6B4A32", floorType: .wood),
         Recipe(id: "starter-1", title: "Calm japandi retreat", theme: "calm japandi bedroom in oak", room: 0, wall: "#EFEAE1", floor: "#C2A27C", floorType: .wood),
         Recipe(id: "starter-2", title: "After-dark bedroom", theme: "dark modern bedroom", room: 0, wall: "#2E3033", floor: "#5B4636", floorType: .wood),
         Recipe(id: "starter-3", title: "Warm boho lounge", theme: "warm boho living room", room: 1, wall: "#E3CBA8", floor: "#B58A5E", floorType: .wood),
@@ -155,6 +158,11 @@ public enum StarterBoard {
         guard let url = Bundle.module.url(forResource: "starter_board", withExtension: "json"),
               let data = try? Data(contentsOf: url), let feed = try? FeedFile.read(data) else { return [] }
         return feed.designs
+    }
+
+    /// The ready-made designs for a sample room, kept with the room so it isn't empty.
+    static func designs(for sample: SampleRooms.Sample, in shipped: [DesignPackage]) -> [DesignPackage] {
+        shipped.filter { $0.room == sample.room }
     }
 
     /// Makes the designs from the sample rooms and catalogue, with the rules only, so the result never varies.

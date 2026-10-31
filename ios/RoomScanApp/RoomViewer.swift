@@ -128,6 +128,7 @@ struct ProductCard: View {
             Text([entry?.store, entry?.priceText].compactMap { $0 }.joined(separator: " · ")).font(.subheadline).foregroundStyle(.secondary)
             if let original = entry?.originalPriceText { Text("Store price: \(original)").font(.caption).foregroundStyle(.secondary) }
             Text(size).font(.footnote).foregroundStyle(.secondary)
+            if Season.isDecoration(piece.category) { Text("A decoration, not for sale.").font(.footnote).foregroundStyle(.secondary) }
             if let note = entry?.note { Text(note).font(.footnote).foregroundStyle(.orange) }
             if let url = entry?.url {
                 Button { openURL(url) } label: {
@@ -166,27 +167,31 @@ struct ObjectSceneView: UIViewRepresentable {
     }
 
     private func configure(_ view: SCNView, context: Context) {
-        // Walls cut away at 1.1 m, like a doll's house, so the room can be seen into from any angle.
-        let scene = RoomScene.make(room, layout, colours: colours, wallPaint: wallPaint, cutaway: 1.1, products: products, style: style)
-        Self.addLights(to: scene)
-        let b = room.derived.bounds
-        let centre = SCNVector3(Float(b.centre.x), 0.2, Float(b.centre.z))
-        let span = max(b.width, b.depth, 2)
+        // Full-height walls, with the ones between the camera and the room hidden as it moves, so the room can be
+        // seen into from any angle and what hangs on the walls stays in view.
+        let scene = RoomScene.make(room, layout, colours: colours, wallPaint: wallPaint, products: products, style: style)
+        RoomScene.addLights(to: scene, room: room, style: style)
+        let start = RoomScene.viewpoint(room, layout: layout, fieldOfView: 58)
         let camera = SCNNode()
         camera.camera = SCNCamera()
         camera.camera?.projectionDirection = .horizontal
         camera.camera?.fieldOfView = 58
         camera.camera?.zNear = 0.05
-        camera.position = SCNVector3(centre.x, Float(span * 1.15), centre.z + Float(span * 0.85))
-        camera.look(at: centre)
+        camera.position = start.eye
+        camera.look(at: start.target)
         scene.rootNode.addChildNode(camera)
         view.scene = scene
         view.pointOfView = camera
         view.allowsCameraControl = interactive
-        view.defaultCameraController.target = centre
+        view.defaultCameraController.target = start.target
         view.defaultCameraController.interactionMode = .orbitTurntable
-        context.coordinator.shown = room
-        context.coordinator.shownLayout = layout
+        let coordinator = context.coordinator
+        coordinator.shown = room
+        coordinator.shownLayout = layout
+        coordinator.wallParts = RoomScene.wallParts(in: scene.rootNode)
+        coordinator.lastEye = nil
+        coordinator.hideWalls(from: start.eye)
+        view.delegate = coordinator
     }
 
     func updateUIView(_ view: SCNView, context: Context) {
@@ -194,25 +199,25 @@ struct ObjectSceneView: UIViewRepresentable {
         if context.coordinator.shown != room || context.coordinator.shownLayout != layout { configure(view, context: context) }
     }
 
-    static func addLights(to scene: SCNScene) {
-        let sun = SCNNode()
-        sun.light = SCNLight()
-        sun.light?.type = .directional
-        sun.light?.intensity = 900
-        sun.eulerAngles = SCNVector3(-1.0, 0.6, 0)
-        scene.rootNode.addChildNode(sun)
-        let ambient = SCNNode()
-        ambient.light = SCNLight()
-        ambient.light?.type = .ambient
-        ambient.light?.intensity = 450
-        scene.rootNode.addChildNode(ambient)
-    }
-
-    final class Coordinator: NSObject {
+    final class Coordinator: NSObject, SCNSceneRendererDelegate {
         var onTap: (String?) -> Void
         var shown: CanonicalRoom?
         var shownLayout: FurnitureLayout?
+        var wallParts: [SCNNode] = []
+        var lastEye: SCNVector3?
         init(onTap: @escaping (String?) -> Void) { self.onTap = onTap }
+
+        func hideWalls(from eye: SCNVector3) {
+            guard let shown else { return }
+            lastEye = eye
+            RoomScene.hideWalls(wallParts, room: shown, from: Point2(Double(eye.x), Double(eye.z)))
+        }
+
+        func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+            guard let eye = renderer.pointOfView?.worldPosition else { return }
+            if let last = lastEye, abs(last.x - eye.x) + abs(last.z - eye.z) < 0.03 { return }
+            hideWalls(from: eye)
+        }
 
         @objc func tapped(_ gesture: UITapGestureRecognizer) {
             guard let view = gesture.view as? SCNView else { return }
@@ -317,7 +322,7 @@ struct ARRoomView: UIViewRepresentable {
             built.position = SCNVector3(Float(-b.centre.x), 0, Float(-b.centre.z))
             // See-through walls, so the furniture stays visible.
             built.enumerateChildNodes { node, _ in
-                if node.name?.hasPrefix("wall:") == true || node.name?.hasPrefix("opening:") == true { node.opacity = 0.3 }
+                if node.name.map(RoomScene.isWallPart) == true { node.opacity = 0.3 }
             }
             let anchor = SCNNode()
             anchor.simdTransform = hit.worldTransform

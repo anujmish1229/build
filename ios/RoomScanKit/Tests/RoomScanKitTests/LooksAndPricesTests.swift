@@ -7,11 +7,11 @@ import Testing
 @testable import RoomScanKit
 
 @Suite struct ShapeTests {
-    /// The world bounds of every part of a piece, leaving out the rug.
+    /// The world bounds of every part of a piece.
     func bounds(_ node: SCNNode) -> (min: SCNVector3, max: SCNVector3) {
         var lo = SCNVector3(1e6, 1e6, 1e6), hi = SCNVector3(-1e6, -1e6, -1e6)
         node.enumerateHierarchy { part, _ in
-            guard part.geometry != nil, part.name != FurnitureBuilder.rugName else { return }
+            guard part.geometry != nil else { return }
             let (a, b) = part.boundingBox
             for p in [SCNVector3(a.x, a.y, a.z), SCNVector3(b.x, b.y, b.z)] {
                 let w = part.convertPosition(p, to: node)
@@ -38,6 +38,23 @@ import Testing
             #expect(Double(hi.z - lo.z) < entry.size[1] + tol, "\(entry.name) is too deep")
             // Each is really a shape, not just a box.
             #expect(node.childNodes.count >= 2, "\(entry.name)")
+        }
+    }
+
+    @Test(arguments: ["christmas", "halloween"])
+    func decorationsStayInsideTheirSize(_ season: String) async throws {
+        let style = DesignStyle(words: [season])
+        let room = SampleRooms.all[3].room
+        let plan = FurniturePlanner.plan(brief: DesignBrief(roomType: "living"), room: room, theme: season).plan
+        for item in plan.items where Season.isDecoration(item.category) {
+            let placed = FurnitureLayout.Placed(itemID: "x", x: 0, z: 0, rotation: 0, footprint: [item.size[0], item.size[1]], category: item.category, height: item.size[2])
+            let node = RoomScene.furniture(placed, style: style)
+            let (lo, hi) = bounds(node)
+            let tol = 0.03
+            #expect(Double(lo.y) > -tol, "\(item.name) goes below the floor: \(lo.y)")
+            #expect(Double(hi.y) < item.size[2] + tol, "\(item.name) is too tall: \(hi.y) over \(item.size[2])")
+            #expect(Double(hi.x - lo.x) < item.size[0] + tol, "\(item.name) is too wide: \(hi.x - lo.x) over \(item.size[0])")
+            #expect(Double(hi.z - lo.z) < item.size[1] + tol, "\(item.name) is too deep: \(hi.z - lo.z) over \(item.size[1])")
         }
     }
 

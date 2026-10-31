@@ -13,7 +13,7 @@ struct RoomsView: View {
         CardList {
             ForEach(app.library.rooms) { room in
                 Section {
-                    NavigationLink(value: Route.room(room.id)) { RoomRow(room: room, designCount: app.library.designs(for: room.id).count, units: app.units) }
+                    NavigationLink(value: Route.room(room.id)) { RoomRow(room: room, latest: app.library.designs(for: room.id).first, designCount: app.library.designs(for: room.id).count, units: app.units) }
                         .accessibilityIdentifier("room-\(room.name)")
                     ForEach(app.library.designs(for: room.id)) { design in
                         NavigationLink(value: Route.design(design.id)) { Label(design.name, systemImage: "sofa") }
@@ -61,12 +61,14 @@ struct RoomsView: View {
 
 struct RoomRow: View {
     let room: SavedRoom
+    /// Its newest design, shown furnished on the little plan.
+    var latest: SavedDesign?
     let designCount: Int
     let units: UnitSystem
 
     var body: some View {
         HStack(spacing: 12) {
-            FurnishedPlanView(room: room.room, layout: nil).frame(width: 64, height: 64)
+            FurnishedPlanView(room: room.room, layout: latest?.layout).frame(width: 64, height: 64)
             VStack(alignment: .leading, spacing: 4) {
                 Text(room.name).font(.headline)
                 Text("\(Units.area(room.room.derived.area, units)), \(designCount) design\(designCount == 1 ? "" : "s")")
@@ -92,9 +94,10 @@ struct RoomDetailView: View {
     var body: some View {
         if let room = app.library.room(roomID) {
             let issues = RoomValidation.validate(room.room, units: app.units)
+            let latest = app.library.designs(for: roomID).first
             CardList {
                 Section {
-                    FurnishedPlanView(room: room.room, layout: nil).frame(height: 240)
+                    FurnishedPlanView(room: room.room, layout: latest?.layout).frame(height: 240)
                     LabeledContent("Area", value: Units.area(room.room.derived.area, app.units))
                     LabeledContent("Ceiling", value: Units.format(room.room.ceilingHeight, app.units))
                     LabeledContent("Walls", value: "\(room.room.walls.count)")
@@ -127,7 +130,7 @@ struct RoomDetailView: View {
             .nightBackground()
             .navigationTitle(room.name)
             .navigationBarTitleDisplayMode(.inline)
-            .fullScreenCover(isPresented: $viewing) { RoomViewer(room: room.room, layout: nil, colours: room.colours) }
+            .fullScreenCover(isPresented: $viewing) { RoomViewer(room: room.room, layout: latest?.layout, colours: room.colours, wallPaint: latest?.wallPaint?.hex, products: latest?.products ?? [], style: latest?.plan.style) }
             .sheet(isPresented: $rescanning) {
                 NavigationStack {
                     ScanView(onFinished: { raw, colours in

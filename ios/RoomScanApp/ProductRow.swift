@@ -22,6 +22,7 @@ struct ProductRow: View {
                 if let store = entry?.store { Text(store) }
             }
             .font(.footnote).foregroundStyle(.secondary)
+            if Season.isDecoration(piece.category) { Text("Decoration").font(.footnote).foregroundStyle(.secondary) }
             if let original = entry?.originalPriceText { Text("Store price: \(original)").font(.caption).foregroundStyle(.secondary) }
             if let note = entry?.note { Text(note).font(.caption).foregroundStyle(.orange) }
         }
