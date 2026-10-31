@@ -185,15 +185,22 @@ public struct FurnitureCatalog: Sendable {
         return catalog
     }()
 
+    /// A catalogue built into this copy of the app from catalog-local/, if there is one.
+    public static let builtIntoApp: FurnitureCatalog? = {
+        guard let url = Bundle.main.url(forResource: "ikea-global", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return try? FurnitureCatalog(json: data)
+    }()
+
     private static let lock = NSLock()
     nonisolated(unsafe) private static var imported: FurnitureCatalog?
     nonisolated(unsafe) private static var regional: (key: String, catalog: FurnitureCatalog)?
 
-    /// Every region's pieces: the imported catalogue, else the built-in one.
+    /// Every region's pieces: the imported catalogue, else one built into the app, else the samples.
     public static var all: FurnitureCatalog {
         lock.lock()
         defer { lock.unlock() }
-        return imported ?? bundled
+        return imported ?? builtIntoApp ?? bundled
     }
 
     /// The catalogue in use: the pieces of the regions being shown.
@@ -203,7 +210,7 @@ public struct FurnitureCatalog: Sendable {
         lock.lock()
         defer { lock.unlock() }
         if let regional, regional.key == key { return regional.catalog }
-        let catalog = (imported ?? bundled).inRegions(shopping)
+        let catalog = (imported ?? builtIntoApp ?? bundled).inRegions(shopping)
         regional = (key, catalog)
         return catalog
     }
@@ -215,6 +222,9 @@ public struct FurnitureCatalog: Sendable {
         regional = nil
         lock.unlock()
     }
+
+    /// True when the pieces in use are the invented samples.
+    public var isSamples: Bool { entries.first?.catalogID.hasPrefix("sample_") ?? true }
 
     public var regions: [String] { Set(entries.compactMap(\.region)).sorted() }
 

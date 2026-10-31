@@ -62,12 +62,14 @@ struct SettingsView: View {
                 LabeledContent("Pieces", value: "\(FurnitureCatalog.all.entries.count)")
                 Button("Open a catalogue file") { importing = true }
                 if app.hasImportedCatalogue {
-                    Button("Go back to the built-in catalogue") { app.resetCatalogue() }
+                    Button("Stop using the opened catalogue") { app.resetCatalogue() }
                 }
             } header: {
                 Text("Catalogue")
             } footer: {
-                Text("The built-in pieces are invented samples with typical sizes and prices, not real products. Open a catalogue file to use real ones.")
+                Text(FurnitureCatalog.all.isSamples
+                    ? "The built-in pieces are invented samples with typical sizes and prices, not real products. Open a catalogue file to use real ones."
+                    : "From a catalogue snapshot, for personal use. Prices and sizes may have changed, so the store's page is the source of truth.")
             }
             Section {
                 TextField("https://example.com/board-feed.json", text: $feedAddress)
