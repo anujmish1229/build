@@ -2,7 +2,7 @@
 
 Poltar is an iOS app that scans a real room and furnishes it with real products that are guaranteed to fit. Everything runs on the device, with no server, account or API key.
 
-Created by Anirud, Anuj, Suad and Tamir.
+Created by [Anirud](https://github.com/AnirudIye), [Anuj](https://github.com/anujmish1229), [Suad](https://github.com/suad52) and [Tamir](https://github.com/tamirsaif).
 
 ## What it does
 
